@@ -1,12 +1,3 @@
-export async function handler(): Promise<Response> {
-  const body = {
-    function: "ia-gamificacao",
-    status: "ok",
-    mechanics: ["ranking", "feed", "competicoes", "mini-games", "badges"],
-    mini_games: ["puzzle", "tabuleiro", "arcade", "quiz"],
-  };
+import { handler } from "./handler.ts";
 
-  return new Response(JSON.stringify(body), {
-    headers: { "Content-Type": "application/json" },
-  });
-}
+Deno.serve(handler);

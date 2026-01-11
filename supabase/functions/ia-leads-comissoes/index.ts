@@ -1,17 +1,3 @@
-type LeadPayload = { stage?: string };
+import { handler } from "./handler.ts";
 
-export async function handler(request: Request): Promise<Response> {
-  const payload = (await request.json().catch(() => ({}))) as LeadPayload;
-
-  const response = {
-    function: "ia-leads-comissoes",
-    status: "ok",
-    stage: payload.stage ?? "prospecting",
-    commission_formula: "percentual + bonus",
-    reconciliation: "stripe",
-  };
-
-  return new Response(JSON.stringify(response), {
-    headers: { "Content-Type": "application/json" },
-  });
-}
+Deno.serve(handler);
