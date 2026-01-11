@@ -222,9 +222,10 @@ export default function Home() {
               Plano Free com onboarding imediato e Premium a €3.99/mês. Voucher
               <span className="font-semibold text-emerald-300">
                 {" "}
-                “LancamentoPortugal”
+                “LançamentoPortugal”
               </span>{" "}
-              concede 3 meses grátis. Portal de faturação disponível.
+              (código: LancamentoPortugal) concede 3 meses grátis. Portal de
+              faturação disponível.
             </p>
             <div className="rounded-2xl border border-emerald-500/50 bg-emerald-500/10 p-4">
               <p className="text-sm font-semibold text-emerald-100">
@@ -246,7 +247,7 @@ export default function Home() {
                 <p className="text-3xl font-semibold">€3.99/mês</p>
               </div>
               <p className="rounded-full bg-white/10 px-3 py-1 text-xs text-emerald-200">
-                voucher: LancamentoPortugal
+                voucher: LançamentoPortugal (LancamentoPortugal)
               </p>
             </div>
             <ul className="mt-3 space-y-2 text-sm text-slate-200">

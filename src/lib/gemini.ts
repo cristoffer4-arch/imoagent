@@ -4,6 +4,9 @@ const GEMINI_MODEL =
 
 async function callGemini(prompt: string) {
   if (!GEMINI_API_KEY) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("GEMINI_API_KEY ausente em produção.");
+    }
     return {
       ok: true,
       mock: true,
