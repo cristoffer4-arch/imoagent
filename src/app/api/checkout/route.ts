@@ -20,8 +20,6 @@ export async function POST(request: Request) {
   }
 
   const stripe = new Stripe(stripeKey, {
-    apiVersion: "2024-11-20.acacia",  });
-
   const session = await stripe.checkout.sessions.create({
     mode: "subscription",
     line_items: [
