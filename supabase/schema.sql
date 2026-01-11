@@ -151,31 +151,47 @@ create table if not exists notifications (
 alter table notifications enable row level security;
 
 -- políticas simples de exemplo
-create policy if not exists "own-data-profiles" on profiles for select using (auth.uid() = id);
-create policy if not exists "own-data-tables" on leads for select using (auth.uid() = profile_id);
-create policy if not exists "profiles-manage" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
-create policy if not exists "leads-manage" on leads for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "commissions-manage" on commissions for all using (
+drop policy if exists "own-data-profiles" on profiles;
+create policy "own-data-profiles" on profiles for select using (auth.uid() = id);
+drop policy if exists "own-data-tables" on leads;
+create policy "own-data-tables" on leads for select using (auth.uid() = profile_id);
+drop policy if exists "profiles-manage" on profiles;
+create policy "profiles-manage" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
+drop policy if exists "leads-manage" on leads;
+create policy "leads-manage" on leads for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "commissions-manage" on commissions;
+create policy "commissions-manage" on commissions for all using (
   exists (select 1 from leads l where l.id = lead_id and l.profile_id = auth.uid())
 ) with check (
   exists (select 1 from leads l where l.id = lead_id and l.profile_id = auth.uid())
 );
-create policy if not exists "subscriptions-manage" on subscriptions for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "payments-manage" on payments for all using (
+drop policy if exists "subscriptions-manage" on subscriptions;
+create policy "subscriptions-manage" on subscriptions for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "payments-manage" on payments;
+create policy "payments-manage" on payments for all using (
   exists (select 1 from subscriptions s where s.id = subscription_id and s.profile_id = auth.uid())
 ) with check (
   exists (select 1 from subscriptions s where s.id = subscription_id and s.profile_id = auth.uid())
 );
-create policy if not exists "appointments-manage" on appointments for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "tasks-manage" on tasks for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "documents-manage" on documents for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "storage-files-manage" on storage_files for all using (
+drop policy if exists "appointments-manage" on appointments;
+create policy "appointments-manage" on appointments for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "tasks-manage" on tasks;
+create policy "tasks-manage" on tasks for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "documents-manage" on documents;
+create policy "documents-manage" on documents for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "storage-files-manage" on storage_files;
+create policy "storage-files-manage" on storage_files for all using (
   exists (select 1 from documents d where d.id = document_id and d.profile_id = auth.uid())
 ) with check (
   exists (select 1 from documents d where d.id = document_id and d.profile_id = auth.uid())
 );
-create policy if not exists "coaching-manage" on coaching_sessions for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "kpi-manage" on kpi_snapshots for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "notifications-manage" on notifications for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
-create policy if not exists "properties-service-write" on properties for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
-create policy if not exists "competitions-service-write" on competitions for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+drop policy if exists "coaching-manage" on coaching_sessions;
+create policy "coaching-manage" on coaching_sessions for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "kpi-manage" on kpi_snapshots;
+create policy "kpi-manage" on kpi_snapshots for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "notifications-manage" on notifications;
+create policy "notifications-manage" on notifications for all using (auth.uid() = profile_id) with check (auth.uid() = profile_id);
+drop policy if exists "properties-service-write" on properties;
+create policy "properties-service-write" on properties for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+drop policy if exists "competitions-service-write" on competitions;
+create policy "competitions-service-write" on competitions for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
