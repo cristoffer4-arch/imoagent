@@ -19,8 +19,15 @@ export function getSupabaseBrowser() {
 }
 
 // Export as supabaseBrowser for backward compatibility
+// Using Proxy with proper method binding to preserve 'this' context
 export const supabaseBrowser = new Proxy({} as SupabaseClient, {
   get(_target, prop) {
-    return getSupabaseBrowser()[prop as keyof SupabaseClient]
+    const client = getSupabaseBrowser()
+    const value = client[prop as keyof SupabaseClient]
+    // Bind functions to preserve 'this' context
+    if (typeof value === 'function') {
+      return value.bind(client)
+    }
+    return value
   }
 })
