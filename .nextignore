@@ -1,0 +1,2 @@
+# Exclude Supabase functions from Next.js build
+supabase/
