@@ -1,0 +1,5 @@
+[33m263eab5[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m feat: Configure environment and prepare for production deployment
+[33m2841879[m feat: aplicar novo design baseado no MVP - gradiente rosa/roxo, cards brancos, icones coloridos
+[33m2e86ebb[m fix: corrigir sintaxe JSX nos cards de rota - navega\u00e7\u00e3o funcionando
+[33mabed664[m Fix formatting issues in page.tsx
+[33m42b6745[m Fix className syntax - move inline styles to className
