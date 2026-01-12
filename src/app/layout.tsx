@@ -1,21 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { Toaster } from 'sonner'
 
 export const metadata: Metadata = {
-  title: "Imoagent | Plataforma de Gestão Imobiliária com IA",
-  description:
-    "Plataforma completa Next.js 15 + Supabase + Stripe com 7 IAs Gemini para busca, coaching, gamificação, anúncios, legal, leads/comissões e orquestração.",
+  title: "ImoAgent - Plataforma Imobiliária com IA",
+  description: "Plataforma completa de gestão imobiliária com 7 agentes de IA, busca em múltiplos portais, coaching SMART, gamificação e análise de dados.",
+  keywords: "imóveis, inteligência artificial, gestão imobiliária, corretor, propriedades",
 };
 
 export default function RootLayout({
@@ -24,11 +14,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="pt-BR" suppressHydrationWarning>
+      <body className="antialiased">
         {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

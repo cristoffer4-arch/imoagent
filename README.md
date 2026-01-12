@@ -1,177 +1,81 @@
-# Supabase CLI
+# ImoAgent - Plataforma Imobiliária com IA
 
-[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
-](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
+[![Next.js](https://img.shields.io/badge/Next.js-16.1-black)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-green)](https://supabase.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
+Plataforma completa de gestão imobiliária com 7 agentes de IA (Gemini), busca em 7+ portais, coaching com metas SMART, gamificação, análise jurídica, gestão de leads, agenda inteligente com Pomodoro, design iOS-style responsivo, 15+ tabelas Supabase, 7 Edge Functions, integração Stripe, scanner de documentos, calculadora de comissões, documentação completa e testes.
 
-This repository contains all the functionality for Supabase CLI.
+## 🚀 Funcionalidades Principais
 
-- [x] Running Supabase locally
-- [x] Managing database migrations
-- [x] Creating and deploying Supabase Functions
-- [x] Generating types directly from your database schema
-- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
+### 7 Agentes de IA (Google Gemini)
 
-## Getting started
+1. **Agente de Busca** - Scraping em 7+ portais imobiliários simultaneamente
+2. **Agente de Coaching** - Acompanhamento de metas SMART
+3. **Agente de Gamificação** - Sistema de rankings e conquistas
+4. **Agente de Anúncios** - Otimização de marketing
+5. **Agente Legal** - Análise de documentos jurídicos
+6. **Agente de Leads** - Qualificação e roteamento
+7. **Agente de Tracking** - Gestão de agenda com IA
 
-### Install the CLI
+### 🎨 Design e UI/UX
 
-Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
+- **iOS-Style Design**: Interface inspirada no iOS
+- **Dark/Light Mode**: Tema automático
+- **Responsivo**: Mobile-first design
+- **Animações**: Transições suaves
 
-```bash
-npm i supabase --save-dev
-```
+### 💾 Database (15+ Tabelas Supabase)
 
-When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
+profiles, properties, leads, appointments, goals, achievements, rankings, commissions, documents, teams, team_members, subscriptions, activities, notifications, pomodoro_sessions, minigames
 
-```
-NODE_OPTIONS=--no-experimental-fetch yarn add supabase
-```
+### ⚡ 7 Edge Functions
 
-> **Note**
-For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
+property-scraper, calculate-rankings, lead-scoring, calculate-commission, ai-coaching, document-processor, notifications
 
-<details>
-  <summary><b>macOS</b></summary>
-
-  Available via [Homebrew](https://brew.sh). To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To install the beta release channel:
-  
-  ```sh
-  brew install supabase/tap/supabase-beta
-  brew link --overwrite supabase-beta
-  ```
-  
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Windows</b></summary>
-
-  Available via [Scoop](https://scoop.sh). To install:
-
-  ```powershell
-  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
-  scoop install supabase
-  ```
-
-  To upgrade:
-
-  ```powershell
-  scoop update supabase
-  ```
-</details>
-
-<details>
-  <summary><b>Linux</b></summary>
-
-  Available via [Homebrew](https://brew.sh) and Linux packages.
-
-  #### via Homebrew
-
-  To install:
-
-  ```sh
-  brew install supabase/tap/supabase
-  ```
-
-  To upgrade:
-
-  ```sh
-  brew upgrade supabase
-  ```
-
-  #### via Linux packages
-
-  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
-
-  ```sh
-  sudo apk add --allow-untrusted <...>.apk
-  ```
-
-  ```sh
-  sudo dpkg -i <...>.deb
-  ```
-
-  ```sh
-  sudo rpm -i <...>.rpm
-  ```
-
-  ```sh
-  sudo pacman -U <...>.pkg.tar.zst
-  ```
-</details>
-
-<details>
-  <summary><b>Other Platforms</b></summary>
-
-  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
-
-  ```sh
-  go install github.com/supabase/cli@latest
-  ```
-
-  Add a symlink to the binary in `$PATH` for easier access:
-
-  ```sh
-  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
-  ```
-
-  This works on other non-standard Linux distros.
-</details>
-
-<details>
-  <summary><b>Community Maintained Packages</b></summary>
-
-  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
-  To install in your working directory:
-
-  ```bash
-  pkgx install supabase
-  ```
-
-  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
-</details>
-
-### Run the CLI
+## 📦 Instalação Rápida
 
 ```bash
-supabase bootstrap
+# Clone
+git clone https://github.com/cristoffer4-arch/imoagent.git
+cd imoagent
+
+# Instalar dependências
+npm install --legacy-peer-deps
+
+# Configurar .env
+cp .env.example .env
+# Edite .env com suas credenciais
+
+# Executar migrações Supabase
+# No painel Supabase, execute supabase/migrations/001_initial_schema.sql
+
+# Iniciar
+npm run dev
 ```
 
-Or using npx:
+## 🛠️ Tecnologias
 
-```bash
-npx supabase bootstrap
-```
+- Next.js 16.1 + React 19 + TypeScript
+- Supabase (PostgreSQL, Auth, Storage, Edge Functions)
+- Google Gemini API (7 agentes)
+- Stripe (Pagamentos)
+- Tailwind CSS 4 (iOS-style)
+- Zustand, React Hook Form, Zod
 
-The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
+## 📚 Documentação
 
-## Docs
+Ver documentação completa em [docs/](./docs/)
 
-Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
+## 🤝 Contribuição
 
-## Breaking changes
+Contribuições são bem-vindas! Veja [CONTRIBUTING.md](./docs/CONTRIBUTING.md)
 
-We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
+## 📄 Licença
 
-However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
+MIT License - veja [LICENSE](LICENSE)
 
-## Developing
+---
 
-To run from source:
-
-```sh
-# Go >= 1.22
-go run . help
-```
+Desenvolvido com ❤️ para corretores de imóveis

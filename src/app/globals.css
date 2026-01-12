@@ -1,26 +1,126 @@
 @import "tailwindcss";
 
 :root {
+  /* Light mode colors - iOS style */
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #000000;
+  --card: #f5f5f7;
+  --card-foreground: #000000;
+  --primary: #007aff;
+  --primary-foreground: #ffffff;
+  --secondary: #5856d6;
+  --secondary-foreground: #ffffff;
+  --accent: #34c759;
+  --accent-foreground: #ffffff;
+  --destructive: #ff3b30;
+  --destructive-foreground: #ffffff;
+  --muted: #f5f5f7;
+  --muted-foreground: #8e8e93;
+  --border: #d1d1d6;
+  --input: #e5e5ea;
+  --ring: #007aff;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    /* Dark mode colors - iOS style */
+    --background: #000000;
+    --foreground: #ffffff;
+    --card: #1c1c1e;
+    --card-foreground: #ffffff;
+    --primary: #0a84ff;
+    --primary-foreground: #ffffff;
+    --secondary: #5e5ce6;
+    --secondary-foreground: #ffffff;
+    --accent: #32d74b;
+    --accent-foreground: #ffffff;
+    --destructive: #ff453a;
+    --destructive-foreground: #ffffff;
+    --muted: #1c1c1e;
+    --muted-foreground: #98989d;
+    --border: #38383a;
+    --input: #2c2c2e;
+    --ring: #0a84ff;
   }
+}
+
+* {
+  border-color: var(--border);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* Custom scrollbar - iOS style */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+

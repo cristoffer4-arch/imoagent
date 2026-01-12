@@ -1,218 +1,208 @@
-# Guia de Deployment - Imoagent
+# Deployment Guide
 
-## 📋 Pré-requisitos
+## Vercel Deployment (Recommended)
 
-1. **Node.js** (v18 ou superior)
-2. **Supabase CLI** instalado
-3. **Git** configurado
-4. Credenciais do Supabase
+### Prerequisites
 
-## 🚀 Passo 1: Instalar Supabase CLI
+- GitHub account
+- Vercel account
+- Supabase project
+- Gemini API key
+- Stripe account
+
+### Steps
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Connect to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "New Project"
+   - Import your GitHub repository
+   - Select the repository
+
+3. **Configure Environment Variables**
+
+   Add these in Vercel project settings:
+
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+   GEMINI_API_KEY=your_gemini_api_key
+   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
+   STRIPE_SECRET_KEY=your_stripe_secret_key
+   STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+   NEXT_PUBLIC_APP_URL=https://your-domain.vercel.app
+   ```
+
+4. **Deploy**
+   - Click "Deploy"
+   - Wait for build to complete
+   - Your app will be live!
+
+5. **Set up Stripe Webhooks**
+   - Go to Stripe Dashboard > Webhooks
+   - Add endpoint: `https://your-domain.vercel.app/api/webhooks/stripe`
+   - Select events: `customer.subscription.*`
+   - Copy webhook secret to `STRIPE_WEBHOOK_SECRET`
+
+6. **Configure Custom Domain (Optional)**
+   - Go to Vercel project settings > Domains
+   - Add your custom domain
+   - Update DNS records as instructed
+
+## Supabase Setup
+
+### 1. Create Project
+
+1. Go to [supabase.com](https://supabase.com)
+2. Click "New Project"
+3. Fill in details and create
+
+### 2. Run Migrations
+
+1. Go to SQL Editor
+2. Copy content from `supabase/migrations/001_initial_schema.sql`
+3. Paste and run
+
+### 3. Deploy Edge Functions
 
 ```bash
-# macOS/Linux
-brew install supabase/tap/supabase
-
-# Windows (via npm)
+# Install Supabase CLI
 npm install -g supabase
 
-# Verificar instalação
-supabase --version
-```
-
-## 🔐 Passo 2: Login no Supabase
-
-```bash
+# Login
 supabase login
+
+# Link project
+supabase link --project-ref your-project-ref
+
+# Deploy functions
+supabase functions deploy property-scraper
+supabase functions deploy calculate-rankings
+supabase functions deploy lead-scoring
+supabase functions deploy calculate-commission
+supabase functions deploy ai-coaching
 ```
 
-Isso abrirá o navegador para autenticação.
-
-## 📂 Passo 3: Clonar e Configurar o Projeto
+### 4. Set Function Secrets
 
 ```bash
-# Clonar repositório
-git clone https://github.com/cristoffer4-arch/imoagent.git
-cd imoagent
-
-# Instalar dependências
-npm install
+supabase secrets set GEMINI_API_KEY=your_key
 ```
 
-## ⚙️ Passo 4: Configurar Variáveis de Ambiente
+### 5. Enable Authentication
 
-Crie o arquivo `.env.local` na raiz do projeto:
+1. Go to Authentication > Providers
+2. Enable Email
+3. Configure providers as needed
 
-```bash
-cp .env.example .env.local
-```
+### 6. Storage Setup
 
-Edite `.env.local` com suas credenciais:
+1. Go to Storage
+2. Create bucket "documents"
+3. Set policies as needed
+
+## Environment-Specific Configuration
+
+### Development
 
 ```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://ieponcrmmetksukwvmtv.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd...
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd...
-
-# Gemini (sua chave existente)
-GEMINI_API_KEY=sua-chave-gemini-aqui
-
-# Stripe (criar em https://dashboard.stripe.com/test/apikeys)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# App URL
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-## 🔗 Passo 5: Linkar Projeto ao Supabase
+### Staging
 
-```bash
-# Linkar ao projeto existente
-supabase link --project-ref ieponcrmmetksukwvmtv
+```env
+NEXT_PUBLIC_APP_URL=https://staging.your-domain.com
 ```
 
-Quando solicitado, use:
-- **Database password**: A senha que você definiu ao criar o projeto
+### Production
 
-## 📡 Passo 6: Deploy das Edge Functions
-
-Agora vamos fazer deploy de todas as 7 Edge Functions:
-
-```bash
-# Deploy de todas as funções de uma vez
-supabase functions deploy ia-orquestradora
-supabase functions deploy ia-busca
-supabase functions deploy ia-coaching
-supabase functions deploy ia-gamificacao
-supabase functions deploy ia-anuncios-idealista
-supabase functions deploy ia-assistente-legal
-supabase functions deploy ia-leads-comissoes
+```env
+NEXT_PUBLIC_APP_URL=https://your-domain.com
 ```
 
-Ou deploy de todas de uma vez:
+## Monitoring & Analytics
 
-```bash
-# Deploy de todas as funções
-for func in ia-orquestradora ia-busca ia-coaching ia-gamificacao ia-anuncios-idealista ia-assistente-legal ia-leads-comissoes; do
-  supabase functions deploy $func
-done
-```
+### Vercel Analytics
 
-## 🔍 Passo 7: Verificar Deployment
+1. Enable in Vercel dashboard
+2. Add to project settings
 
-Após o deploy, acesse:
+### Error Tracking
 
-**Supabase Dashboard**: https://supabase.com/dashboard/project/ieponcrmmetksukwvmtv/functions
+Consider adding:
+- Sentry
+- LogRocket
+- Datadog
 
-Verifique se todas as 7 funções estão listadas e ativas.
+## Performance Optimization
 
-## 🧪 Passo 8: Testar as Funções
+- Enable Edge caching
+- Use Image Optimization
+- Enable compression
+- Monitor Core Web Vitals
 
-### Testar localmente:
+## Security Checklist
 
-```bash
-# Iniciar todas as funções localmente
-supabase functions serve
+- [ ] All environment variables set
+- [ ] Stripe webhook secret configured
+- [ ] Supabase RLS policies enabled
+- [ ] CORS configured correctly
+- [ ] Rate limiting implemented
+- [ ] SSL/TLS enabled
+- [ ] API keys secured
 
-# Testar ia-orquestradora
-curl -i --location --request POST 'http://localhost:54321/functions/v1/ia-orquestradora' \
-  --header 'Authorization: Bearer YOUR_ANON_KEY' \
-  --header 'Content-Type: application/json' \
-  --data '{"event":"test"}'
-```
+## Troubleshooting
 
-### Testar em produção:
+### Build Fails
 
-```bash
-curl -i --location --request POST 'https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-orquestradora' \
-  --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
-  --header 'Content-Type: application/json' \
-  --data '{"event":"test"}'
-```
+- Check environment variables
+- Verify all dependencies installed
+- Check TypeScript errors
 
-## 🌐 Passo 9: Iniciar Aplicação
+### Functions Not Working
 
-```bash
-# Desenvolvimento
-npm run dev
+- Verify function deployment
+- Check function logs in Supabase
+- Verify secrets are set
 
-# Produção (build)
-npm run build
-npm start
-```
+### Database Connection Issues
 
-Acesse: **http://localhost:3000**
+- Verify Supabase URL
+- Check API keys
+- Verify RLS policies
 
-## 📊 URLs das Edge Functions
+## Rollback
 
-Após deployment, suas funções estarão disponíveis em:
+If deployment fails:
 
-```
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-orquestradora
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-busca
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-coaching
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-gamificacao
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-anuncios-idealista
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-assistente-legal
-https://ieponcrmmetksukwvmtv.supabase.co/functions/v1/ia-leads-comissoes
-```
+1. Go to Vercel dashboard
+2. Click "Deployments"
+3. Find previous working deployment
+4. Click "Promote to Production"
 
-## 🔧 Troubleshooting
+## CI/CD
 
-### Erro: "Project not linked"
-```bash
-supabase link --project-ref ieponcrmmetksukwvmtv
-```
+Consider setting up:
+- GitHub Actions
+- Automatic tests on PR
+- Automatic deployment on merge
 
-### Erro: "Authentication required"
-```bash
-supabase login
-```
+## Backup Strategy
 
-### Ver logs das funções:
-```bash
-supabase functions logs ia-orquestradora
-```
+- Regular database backups
+- Code in version control
+- Document storage backup
+- Environment variables documented
 
-### Deletar função (se necessário):
-```bash
-supabase functions delete ia-orquestradora
-```
+## Support
 
-## ✅ Checklist de Deployment
-
-- [ ] Supabase CLI instalado
-- [ ] Login no Supabase realizado
-- [ ] Projeto clonado
-- [ ] Dependências instaladas (`npm install`)
-- [ ] `.env.local` configurado
-- [ ] Projeto linkado ao Supabase
-- [ ] Schema SQL executado (já feito ✅)
-- [ ] 7 Edge Functions deployed
-- [ ] Funções testadas
-- [ ] Aplicação rodando localmente
-
-## 📚 Recursos Adicionais
-
-- [Documentação Supabase Edge Functions](https://supabase.com/docs/guides/functions)
-- [Supabase CLI Reference](https://supabase.com/docs/reference/cli/introduction)
-- [Next.js Documentation](https://nextjs.org/docs)
-
-## 🆘 Suporte
-
-Se encontrar problemas, verifique:
-
-1. **Logs no Supabase Dashboard**: https://supabase.com/dashboard/project/ieponcrmmetksukwvmtv/logs
-2. **Edge Functions Logs**: Seção Functions > Logs
-3. **Database Logs**: Seção Database > Logs
-
----
-
-**Próximos Passos após Deployment:**
-1. Configurar Stripe Webhooks
-2. Adicionar domínio customizado
-3. Configurar CI/CD com GitHub Actions
-4. Deploy em produção (Vercel/Netlify)
+For deployment issues:
+- Vercel: [vercel.com/support](https://vercel.com/support)
+- Supabase: [supabase.com/support](https://supabase.com/support)
+- Project: GitHub Issues
