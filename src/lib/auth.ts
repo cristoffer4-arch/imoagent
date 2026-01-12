@@ -1,4 +1,4 @@
-import { supabaseBrowser, supabaseServiceRole } from "@/lib/supabase/client";
+import { supabaseBrowser } from "@/lib/supabase/client";
 
 export type SessionUser = {
   id: string;
@@ -41,7 +41,7 @@ export async function getSession() {
 }
 
 export async function getProfile(userId: string) {
-  const { data, error } = await supabaseServiceRole
+  const { data, error } = await supabaseBrowser
     .from("profiles")
     .select("id, full_name, role, email")
     .eq("id", userId)
@@ -51,7 +51,8 @@ export async function getProfile(userId: string) {
 }
 
 export async function upsertProfile(userId: string, payload: Record<string, unknown>) {
-  const { error } = await supabaseServiceRole.from("profiles").upsert({ id: userId, ...payload });
+  const { error } = await supabaseBrowser.from("profiles").upsert({ id: userId, ...payload });
   if (error) throw error;
   return true;
 }
+
