@@ -182,8 +182,8 @@ export default function Home() {
             {aiModules.map((feature) => (
               <Link
 href={feature.href || "#"}
-                 transition hover:bg-black/50 hover:border-emerald-500/30 cursor-pointer                key={feature.title}
-                className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/30 p-4"
+                
+                className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/30 p-4 transition hover:bg-black/50 hover:border-emerald-500/30 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <h3 className="text-lg font-semibold">{feature.title}</h3>
