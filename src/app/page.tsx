@@ -196,6 +196,7 @@ href={feature.href || "#"}
                 <p className="text-sm text-slate-200">{feature.description}</p>
               </div>
             ))}
+                          </div>
           </div>
         </section>
 
