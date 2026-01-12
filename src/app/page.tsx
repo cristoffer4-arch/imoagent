@@ -181,8 +181,8 @@ export default function Home() {
           <div className="grid gap-4 md:grid-cols-2">
             {aiModules.map((feature) => (
               <Link
-href={feature.href || "#"}
-                
+                key={feature.title}
+                href={feature.href || "#"}
                 className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/30 p-4 transition hover:bg-black/50 hover:border-emerald-500/30 cursor-pointer"
               >
                 <div className="flex items-center gap-2">
@@ -192,11 +192,10 @@ href={feature.href || "#"}
                       {feature.badge}
                     </span>
                   ) : null}
-                </Link>
+                </div>
                 <p className="text-sm text-slate-200">{feature.description}</p>
-              </div>
+              </Link>
             ))}
-                          </div>
           </div>
         </section>
 
