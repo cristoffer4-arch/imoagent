@@ -28,30 +28,33 @@ const aiModules: Feature[] = [
     title: "3. IA Gamificação",
     description:
       "Rankings em tempo real, feed social, competições, mini-games (puzzle, tabuleiro, arcade, quiz), dashboard de diretor com QR de onboarding, quadro de avisos, badges e relatório de desenvolvimento.",
-  },
     href: "/ia-gamificacao",
-    href: "/ia-anuncios-idealista",
+  },
   {
     title: "4. IA Anúncios Idealista",
     description:
       "Geração e otimização automática de anúncios para Idealista com variações criativas e checklist de conformidade.",
+    href: "/ia-anuncios-idealista",
   },
   {
     title: "5. IA Assistente Legal",
     description:
       "Modelos de contratos, análise de riscos, checklist de due diligence e monitoramento de alterações legislativas.",
+    href: "/ia-assistente-legal",
   },
     href: "/ia-assistente-legal",
   {
     title: "6. IA Leads/Comissões",
     description:
       "Pipeline de leads, scoring, distribuição inteligente, cálculo de comissões e reconciliação com Stripe.",
+    href: "/ia-leads-comissoes",
   },
     href: "/ia-leads-comissoes",
   {
     title: "7. IA Orquestradora",
     description:
       "Coordena as demais IAs, roteia prompts, monitora SLAs e envia alertas para incidentes ou quedas de qualidade.",
+    href: "/ia-orquestradora",
     badge: "Central",
   },
 ];
