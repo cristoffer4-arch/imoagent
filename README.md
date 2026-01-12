@@ -1,228 +1,177 @@
-# 🏠 Imoagent - Plataforma Imobiliária com IA
+# Supabase CLI
 
-[![Next.js](https://img.shields.io/badge/Next.js-15-black)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)](https://www.typescriptlang.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-Postgres-green)](https://supabase.com/)
-[![Gemini](https://img.shields.io/badge/Gemini-AI-orange)](https://ai.google.dev/)
+[![Coverage Status](https://coveralls.io/repos/github/supabase/cli/badge.svg?branch=main)](https://coveralls.io/github/supabase/cli?branch=main) [![Bitbucket Pipelines](https://img.shields.io/bitbucket/pipelines/supabase-cli/setup-cli/master?style=flat-square&label=Bitbucket%20Canary)](https://bitbucket.org/supabase-cli/setup-cli/pipelines) [![Gitlab Pipeline Status](https://img.shields.io/gitlab/pipeline-status/sweatybridge%2Fsetup-cli?label=Gitlab%20Canary)
+](https://gitlab.com/sweatybridge/setup-cli/-/pipelines)
 
-Plataforma completa de gestão imobiliária com **7 IAs especializadas**, busca em múltiplos portais, coaching personalizado, gamificação e análise de dados em tempo real.
+[Supabase](https://supabase.io) is an open source Firebase alternative. We're building the features of Firebase using enterprise-grade open source tools.
 
-## ✨ Características Principais
+This repository contains all the functionality for Supabase CLI.
 
-### 🤖 7 IAs Especializadas
+- [x] Running Supabase locally
+- [x] Managing database migrations
+- [x] Creating and deploying Supabase Functions
+- [x] Generating types directly from your database schema
+- [x] Making authenticated HTTP requests to [Management API](https://supabase.com/docs/reference/api/introduction)
 
-1. **IA Orquestradora** - Coordena todas as IAs e gerencia fluxos
-2. **IA de Busca** - Pesquisa em 7+ portais (Idealista, Casa Sapo, Imovirtual, etc.)
-3. **IA de Coaching** - Metas SMART, técnicas de vendas, CNV
-4. **IA de Gamificação** - Ranking, desafios, recompensas
-5. **IA Anúncios Idealista** - Otimização para Idealista
-6. **IA Assistente Legal** - Contratos, documentação jurídica
-7. **IA Leads/Comissões** - Gestão de pipeline e CRM
+## Getting started
 
-### 🎯 Funcionalidades
+### Install the CLI
 
-- **Busca Multi-Portal** com deduplicação e validação comunitária
-- **Geolocalização** via Supabase Maps
-- **Coaching Personalizado** com análise DISC e PNL
-- **Dashboard Diretor** com QR codes para monitoramento
-- **Agenda Inteligente** com técnica Pomodoro e assistente IA
-- **Gamificação** com competições e recompensas
-- **Gestão Documental** com OCR e armazenamento seguro
-- **Sistema de Pagamentos** via Stripe (Free/Premium)
-
-## 🏗️ Arquitetura
-
-```
-imoagent/
-├── src/
-│   ├── app/              # Next.js 15 App Router
-│   ├── components/       # Componentes React
-│   └── lib/              # Utilities, Supabase client
-├── supabase/
-│   ├── functions/        # 7 Edge Functions (Deno)
-│   │   ├── ia-orquestradora/
-│   │   ├── ia-busca/
-│   │   ├── ia-coaching/
-│   │   ├── ia-gamificacao/
-│   │   ├── ia-anuncios-idealista/
-│   │   ├── ia-assistente-legal/
-│   │   └── ia-leads-comissoes/
-│   └── schema.sql        # Database schema + RLS
-├── docs/
-│   └── DEPLOYMENT.md     # Guia completo de deployment
-└── tests/
-    ├── __tests__/        # Jest unit tests
-    └── e2e/              # Playwright E2E tests
-```
-
-## 🚀 Quick Start
-
-### Pré-requisitos
-
-- Node.js 18+
-- Supabase CLI
-- Conta Supabase (Free tier OK)
-- Gemini API Key
-- Stripe Account (opcional para pagamentos)
-
-### Instalação
+Available via [NPM](https://www.npmjs.com) as dev dependency. To install:
 
 ```bash
-# Clone o repositório
-git clone https://github.com/cristoffer4-arch/imoagent.git
-cd imoagent
-
-# Instale dependências
-npm install
-
-# Configure variáveis de ambiente
-cp .env.example .env.local
-# Edite .env.local com suas credenciais
-
-# Inicie desenvolvimento
-npm run dev
+npm i supabase --save-dev
 ```
 
-Acesse: **http://localhost:3000**
+When installing with yarn 4, you need to disable experimental fetch with the following nodejs config.
 
-## 📦 Deployment
+```
+NODE_OPTIONS=--no-experimental-fetch yarn add supabase
+```
 
-Veja guia completo em [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+> **Note**
+For Bun versions below v1.0.17, you must add `supabase` as a [trusted dependency](https://bun.sh/guides/install/trusted) before running `bun add -D supabase`.
 
-### Deploy Rápido das Edge Functions
+<details>
+  <summary><b>macOS</b></summary>
+
+  Available via [Homebrew](https://brew.sh). To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To install the beta release channel:
+  
+  ```sh
+  brew install supabase/tap/supabase-beta
+  brew link --overwrite supabase-beta
+  ```
+  
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Windows</b></summary>
+
+  Available via [Scoop](https://scoop.sh). To install:
+
+  ```powershell
+  scoop bucket add supabase https://github.com/supabase/scoop-bucket.git
+  scoop install supabase
+  ```
+
+  To upgrade:
+
+  ```powershell
+  scoop update supabase
+  ```
+</details>
+
+<details>
+  <summary><b>Linux</b></summary>
+
+  Available via [Homebrew](https://brew.sh) and Linux packages.
+
+  #### via Homebrew
+
+  To install:
+
+  ```sh
+  brew install supabase/tap/supabase
+  ```
+
+  To upgrade:
+
+  ```sh
+  brew upgrade supabase
+  ```
+
+  #### via Linux packages
+
+  Linux packages are provided in [Releases](https://github.com/supabase/cli/releases). To install, download the `.apk`/`.deb`/`.rpm`/`.pkg.tar.zst` file depending on your package manager and run the respective commands.
+
+  ```sh
+  sudo apk add --allow-untrusted <...>.apk
+  ```
+
+  ```sh
+  sudo dpkg -i <...>.deb
+  ```
+
+  ```sh
+  sudo rpm -i <...>.rpm
+  ```
+
+  ```sh
+  sudo pacman -U <...>.pkg.tar.zst
+  ```
+</details>
+
+<details>
+  <summary><b>Other Platforms</b></summary>
+
+  You can also install the CLI via [go modules](https://go.dev/ref/mod#go-install) without the help of package managers.
+
+  ```sh
+  go install github.com/supabase/cli@latest
+  ```
+
+  Add a symlink to the binary in `$PATH` for easier access:
+
+  ```sh
+  ln -s "$(go env GOPATH)/bin/cli" /usr/bin/supabase
+  ```
+
+  This works on other non-standard Linux distros.
+</details>
+
+<details>
+  <summary><b>Community Maintained Packages</b></summary>
+
+  Available via [pkgx](https://pkgx.sh/). Package script [here](https://github.com/pkgxdev/pantry/blob/main/projects/supabase.com/cli/package.yml).
+  To install in your working directory:
+
+  ```bash
+  pkgx install supabase
+  ```
+
+  Available via [Nixpkgs](https://nixos.org/). Package script [here](https://github.com/NixOS/nixpkgs/blob/master/pkgs/development/tools/supabase-cli/default.nix).
+</details>
+
+### Run the CLI
 
 ```bash
-# Login no Supabase
-supabase login
-
-# Link ao projeto
-supabase link --project-ref ieponcrmmetksukwvmtv
-
-# Deploy todas as funções
-for func in ia-orquestradora ia-busca ia-coaching ia-gamificacao ia-anuncios-idealista ia-assistente-legal ia-leads-comissoes; do
-  supabase functions deploy $func
-done
+supabase bootstrap
 ```
 
-## 🔐 Variáveis de Ambiente
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=https://ieponcrmmetksukwvmtv.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-
-# Gemini AI
-GEMINI_API_KEY=your-gemini-key
-
-# Stripe
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_PUBLISHABLE_KEY=pk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-
-# App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-## 🧪 Testes
+Or using npx:
 
 ```bash
-# Unit tests (Jest)
-npm test
-
-# E2E tests (Playwright)
-npm run test:e2e
-
-# Coverage
-npm run test:coverage
+npx supabase bootstrap
 ```
 
-## 📊 Database Schema
+The bootstrap command will guide you through the process of setting up a Supabase project using one of the [starter](https://github.com/supabase-community/supabase-samples/blob/main/samples.json) templates.
 
-16 tabelas principais:
-- `profiles` - Usuários e consultores
-- `properties` - Imóveis dos portais
-- `leads` - Pipeline de vendas
-- `commissions` - Gestão de comissões
-- `appointments` - Agenda com IA
-- `tasks` - Tarefas e lembretes
-- `coaching_sessions` - Sessões de coaching
-- `kpi_snapshots` - Métricas e KPIs
-- `competitions` - Gamificação
-- `notifications` - Sistema de alertas
-- E mais...
+## Docs
 
-Todas com **Row Level Security (RLS)** configurado.
+Command & config reference can be found [here](https://supabase.com/docs/reference/cli/about).
 
-## 🎨 Stack Tecnológica
+## Breaking changes
 
-**Frontend:**
-- Next.js 15 (App Router)
-- TypeScript 5
-- Tailwind CSS
-- Shadcn/ui
+We follow semantic versioning for changes that directly impact CLI commands, flags, and configurations.
 
-**Backend:**
-- Supabase (PostgreSQL + Auth + Storage + Realtime)
-- Edge Functions (Deno Deploy)
-- Gemini 1.5 Pro
+However, due to dependencies on other service images, we cannot guarantee that schema migrations, seed.sql, and generated types will always work for the same CLI major version. If you need such guarantees, we encourage you to pin a specific version of CLI in package.json.
 
-**Pagamentos:**
-- Stripe (Free €0, Premium €3.99/mês)
-- Voucher "lancamentoPortugal" (3 meses grátis)
+## Developing
 
-**Testes:**
-- Jest (unit)
-- Playwright (E2E)
+To run from source:
 
-## 📱 Módulos
-
-### Para Consultores
-- 🏠 **Busca Inteligente** - Multi-portal com IA
-- 🎯 **Coaching** - Desenvolvimento pessoal
-- 🏆 **Gamificação** - Competições e ranking
-- 📊 **Dashboard** - KPIs em tempo real
-- 📅 **Agenda IA** - Organização inteligente
-- 💼 **CRM** - Gestão de leads
-
-### Para Diretores
-- 📊 **Dashboard Executivo** - Visão geral da equipe
-- 👥 **Gestão de Equipe** - QR codes para monitoramento
-- 📈 **Analytics** - Relatórios detalhados
-- 🎖️ **Competições** - Criar desafios para equipe
-
-## 🌟 Diferenciais
-
-✅ **7 IAs especializadas** trabalhando em conjunto
-✅ **Busca em 7+ portais** simultaneamente
-✅ **Gamificação real** com recompensas
-✅ **Coaching com CNV** e técnicas comprovadas
-✅ **Agenda com IA** (Pomodoro, Time Blocking)
-✅ **Dashboard Diretor** com QR monitoring
-✅ **Sistema de vouchers** para lançamento
-
-## 📄 Licença
-
-MIT License - veja [LICENSE](LICENSE)
-
-## 🤝 Contribuindo
-
-Contribuições são bem-vindas! Veja [CONTRIBUTING.md](CONTRIBUTING.md)
-
-## 📞 Suporte
-
-- **Email**: cristoffer4@gmail.com
-- **GitHub Issues**: [github.com/cristoffer4-arch/imoagent/issues](https://github.com/cristoffer4-arch/imoagent/issues)
-
-## 🗺️ Roadmap
-
-- [ ] Deploy Edge Functions em produção
-- [ ] Integração com mais portais (OLX, Facebook)
-- [ ] App móvel React Native
-- [ ] Integração WhatsApp Business
-- [ ] Dashboard analytics avançado
-- [ ] Sistema de referral
-
----
-
-**Desenvolvido com ❤️ em Porto, Portugal** 🇵🇹
+```sh
+# Go >= 1.22
+go run . help
+```
