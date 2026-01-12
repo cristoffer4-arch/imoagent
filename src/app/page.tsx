@@ -6,6 +6,7 @@ type Feature = {
   title: string;
   description: string;
   badge?: string;
+  href?: string;
 };
 
 const aiModules: Feature[] = [
@@ -14,18 +15,22 @@ const aiModules: Feature[] = [
     description:
       "Scraping 7+ portais (OLX, Facebook, Idealista, BPI, Casa Sapo, Imovirtual, Casafari API), deduplicação por IA, geolocalização, mapas Supabase e validação comunitária de 3 usuários.",
     badge: "Gemini + Edge Function",
+    href: "/ia-busca",
   },
   {
     title: "2. IA Coaching",
     description:
       "Metas SMART derivadas para €100k/ano, sessões 30-45min (diagnóstico, SWOT, estratégias, plano de ação), DISC + PNL, plano diário e 6+ KPIs em tempo real.",
     badge: "Gemini Planner",
+    href: "/ia-coaching",
   },
   {
     title: "3. IA Gamificação",
     description:
       "Rankings em tempo real, feed social, competições, mini-games (puzzle, tabuleiro, arcade, quiz), dashboard de diretor com QR de onboarding, quadro de avisos, badges e relatório de desenvolvimento.",
   },
+    href: "/ia-gamificacao",
+    href: "/ia-anuncios-idealista",
   {
     title: "4. IA Anúncios Idealista",
     description:
@@ -36,11 +41,13 @@ const aiModules: Feature[] = [
     description:
       "Modelos de contratos, análise de riscos, checklist de due diligence e monitoramento de alterações legislativas.",
   },
+    href: "/ia-assistente-legal",
   {
     title: "6. IA Leads/Comissões",
     description:
       "Pipeline de leads, scoring, distribuição inteligente, cálculo de comissões e reconciliação com Stripe.",
   },
+    href: "/ia-leads-comissoes",
   {
     title: "7. IA Orquestradora",
     description:
@@ -172,8 +179,9 @@ export default function Home() {
           </div>
           <div className="grid gap-4 md:grid-cols-2">
             {aiModules.map((feature) => (
-              <div
-                key={feature.title}
+              <Link
+href={feature.href || "#"}
+                 transition hover:bg-black/50 hover:border-emerald-500/30 cursor-pointer                key={feature.title}
                 className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-black/30 p-4"
               >
                 <div className="flex items-center gap-2">
@@ -183,7 +191,7 @@ export default function Home() {
                       {feature.badge}
                     </span>
                   ) : null}
-                </div>
+                </Link>
                 <p className="text-sm text-slate-200">{feature.description}</p>
               </div>
             ))}
