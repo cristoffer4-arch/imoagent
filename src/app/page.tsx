@@ -42,14 +42,12 @@ const aiModules: Feature[] = [
       "Modelos de contratos, análise de riscos, checklist de due diligence e monitoramento de alterações legislativas.",
     href: "/ia-assistente-legal",
   },
-    href: "/ia-assistente-legal",
   {
     title: "6. IA Leads/Comissões",
     description:
       "Pipeline de leads, scoring, distribuição inteligente, cálculo de comissões e reconciliação com Stripe.",
     href: "/ia-leads-comissoes",
   },
-    href: "/ia-leads-comissoes",
   {
     title: "7. IA Orquestradora",
     description:
