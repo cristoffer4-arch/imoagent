@@ -32,7 +32,7 @@ jobs:
       - name: Deploy to Netlify
         uses: netlify/actions/cli@master
         with:
-          args: deploy --prod --dir=.next --functions=.netlify/functions-internal
+          args: deploy --prod --dir=.next --functions=.netlify/functions-internal --site=$NETLIFY_SITE_ID --auth=$NETLIFY_AUTH_TOKEN
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
