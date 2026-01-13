@@ -16,6 +16,14 @@ type Piece = {
   correctIndex: number;
 };
 
+// Available luxury property images for puzzle game
+const PROPERTY_IMAGES = [
+  '/images/properties/luxury-villa-1.svg',
+  '/images/properties/luxury-villa-2.svg',
+  '/images/properties/luxury-villa-3.svg',
+  '/images/properties/luxury-villa-4.svg',
+] as const;
+
 export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(config.timeLimit);
@@ -23,6 +31,11 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
   const [isComplete, setIsComplete] = useState(false);
 
   const gridSize = Math.sqrt(config.pieces);
+  
+  // Select a random property image for this puzzle session
+  const [propertyImage] = useState(() => {
+    return PROPERTY_IMAGES[Math.floor(Math.random() * PROPERTY_IMAGES.length)];
+  });
 
   // Initialize puzzle pieces - use useMemo to avoid recreation
   const [pieces, setPieces] = useState<Piece[]>(() => {
@@ -183,19 +196,25 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
                 key={piece.id}
                 onClick={() => handlePieceClick(piece.currentIndex)}
                 className={`
-                  aspect-square rounded-lg transition-all
+                  aspect-square rounded-lg transition-all overflow-hidden relative
                   ${selectedPiece === piece.currentIndex ? 'ring-4 ring-purple-500 scale-95' : ''}
-                  ${isCorrect ? 'bg-gradient-to-br from-green-400 to-green-500' : 'bg-gradient-to-br from-purple-400 to-pink-400'}
+                  ${isCorrect ? 'ring-2 ring-green-400' : ''}
                   hover:scale-95 active:scale-90
-                  flex items-center justify-center text-white font-bold
+                  flex items-center justify-center
                 `}
                 style={{
-                  backgroundImage: 'url(/placeholder-property.jpg)',
+                  backgroundImage: `url(${propertyImage})`,
                   backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
-                  backgroundPosition: `${col * 100}% ${row * 100}%`,
+                  backgroundPosition: `${col * 100 / (gridSize - 1)}% ${row * 100 / (gridSize - 1)}%`,
+                  backgroundRepeat: 'no-repeat',
                 }}
               >
-                {config.pieces === 9 && piece.id + 1}
+                {/* Number overlay for easy mode only */}
+                {config.pieces === 9 && (
+                  <span className="absolute inset-0 flex items-center justify-center text-white text-2xl font-bold drop-shadow-lg bg-black/20">
+                    {piece.id + 1}
+                  </span>
+                )}
               </button>
             );
           })}
