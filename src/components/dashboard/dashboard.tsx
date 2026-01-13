@@ -2,8 +2,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Home, Search, Target, Trophy, TrendingUp, FileText, Users, Calendar } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export default function Dashboard() {
+  const router = useRouter()
+
   const stats = [
     { label: 'Propriedades Ativas', value: '42', icon: Home, color: 'text-blue-500' },
     { label: 'Leads Novos', value: '18', icon: Users, color: 'text-green-500' },
@@ -18,6 +21,7 @@ export default function Dashboard() {
       icon: Search,
       color: 'bg-blue-500',
       active: true,
+      route: '/aplicativo/ia-busca',
     },
     {
       name: 'Coaching SMART',
@@ -25,6 +29,7 @@ export default function Dashboard() {
       icon: Target,
       color: 'bg-purple-500',
       active: true,
+      route: '/aplicativo/ia-coaching',
     },
     {
       name: 'Gamificação',
@@ -32,6 +37,7 @@ export default function Dashboard() {
       icon: Trophy,
       color: 'bg-yellow-500',
       active: true,
+      route: '/aplicativo/ia-gamificacao',
     },
     {
       name: 'Anúncios',
@@ -39,6 +45,7 @@ export default function Dashboard() {
       icon: TrendingUp,
       color: 'bg-green-500',
       active: true,
+      route: '/aplicativo/ia-anuncios-idealista',
     },
     {
       name: 'Legal',
@@ -46,6 +53,7 @@ export default function Dashboard() {
       icon: FileText,
       color: 'bg-red-500',
       active: true,
+      route: '/aplicativo/assistente-juridico',
     },
     {
       name: 'Leads',
@@ -53,6 +61,7 @@ export default function Dashboard() {
       icon: Users,
       color: 'bg-indigo-500',
       active: true,
+      route: '/aplicativo/ia-leads-comissoes',
     },
     {
       name: 'Agenda IA',
@@ -60,8 +69,13 @@ export default function Dashboard() {
       icon: Calendar,
       color: 'bg-pink-500',
       active: true,
+      route: '/aplicativo/ia-orquestradora',
     },
   ]
+
+  const handleCardClick = (route: string) => {
+    router.push(route)
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
@@ -96,7 +110,11 @@ export default function Dashboard() {
           <h2 className="text-2xl font-bold mb-4">Agentes de IA Ativos</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {aiAgents.map((agent, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card
+                key={index}
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handleCardClick(agent.route)}
+              >
                 <CardHeader>
                   <div className={`w-12 h-12 rounded-xl ${agent.color} flex items-center justify-center mb-4`}>
                     <agent.icon className="w-6 h-6 text-white" />
