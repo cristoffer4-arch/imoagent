@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import type { QuizQuestion, QuizHelp } from '@/types/games';
 
 type QuestionCardProps = {
@@ -26,12 +26,6 @@ export function QuestionCard({
   const [eliminated, setEliminated] = useState<number[]>([]);
   const [revealed, setRevealed] = useState(false);
 
-  useEffect(() => {
-    setSelectedAnswer(null);
-    setEliminated([]);
-    setRevealed(false);
-  }, [question]);
-
   const handleAnswer = (index: number) => {
     if (revealed || eliminated.includes(index)) return;
     setSelectedAnswer(index);
@@ -54,16 +48,6 @@ export function QuestionCard({
 
   const handleExtraTime = () => {
     onUseHelp('extra-time');
-  };
-
-  const getCategoryColor = (category: string) => {
-    const colors = {
-      legislacao: 'from-blue-500 to-blue-600',
-      mercado: 'from-green-500 to-green-600',
-      vendas: 'from-purple-500 to-purple-600',
-      tecnicas: 'from-orange-500 to-orange-600',
-    };
-    return colors[category as keyof typeof colors] || 'from-gray-500 to-gray-600';
   };
 
   const getCategoryIcon = (category: string) => {

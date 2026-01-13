@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { BoardPlayer, PropertyTile } from '@/types/games';
+import type { BoardPlayer, PropertyTile, GameCard } from '@/types/games';
 import { BOARD_PROPERTIES, rollDice, getRandomCard, getRandomCoachingQuestion } from '@/lib/board-game-data';
 
 type BoardGameProps = {
@@ -18,8 +18,13 @@ export function BoardGame({ onGameEnd }: BoardGameProps) {
   const [diceValue, setDiceValue] = useState<number | null>(null);
   const [gameLog, setGameLog] = useState<string[]>(['Jogo iniciado! Boa sorte!']);
   const [turns, setTurns] = useState(0);
-  const [showCard, setShowCard] = useState<any>(null);
-  const [showCoaching, setShowCoaching] = useState<any>(null);
+  const [showCard, setShowCard] = useState<GameCard | null>(null);
+  const [showCoaching, setShowCoaching] = useState<{
+    question: string;
+    options: string[];
+    correct: number;
+    playerId: string;
+  } | null>(null);
 
   const currentPlayer = players[currentPlayerIndex];
 
@@ -120,7 +125,7 @@ export function BoardGame({ onGameEnd }: BoardGameProps) {
     nextTurn();
   };
 
-  const handleCardClose = (card: any) => {
+  const handleCardClose = (card: GameCard) => {
     const updatedPlayers = [...players];
     const playerIndex = updatedPlayers.findIndex(p => p.id === currentPlayer.id);
     updatedPlayers[playerIndex] = card.effect(updatedPlayers[playerIndex]);
@@ -130,6 +135,8 @@ export function BoardGame({ onGameEnd }: BoardGameProps) {
   };
 
   const handleCoachingAnswer = (correct: boolean) => {
+    if (!showCoaching) return;
+    
     const updatedPlayers = [...players];
     const playerIndex = updatedPlayers.findIndex(p => p.id === showCoaching.playerId);
     

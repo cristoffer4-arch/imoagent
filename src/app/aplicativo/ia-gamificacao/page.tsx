@@ -3,16 +3,24 @@
 import { useRouter } from 'next/navigation';
 import { GameCard } from '@/components/games/GameCard';
 import { getPlayerStats } from '@/lib/game-utils';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { PlayerStats } from '@/types/games';
 
 export default function IAGamificacaoPage() {
   const router = useRouter();
-  const [stats, setStats] = useState<PlayerStats | null>(null);
-
-  useEffect(() => {
-    setStats(getPlayerStats());
-  }, []);
+  const [stats] = useState<PlayerStats>(() => {
+    // Initialize with player stats on client side
+    if (typeof window !== 'undefined') {
+      return getPlayerStats();
+    }
+    return {
+      totalPoints: 0,
+      gamesPlayed: 0,
+      badges: [],
+      streaks: {},
+      highScores: {},
+    };
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-pink-50 to-purple-50 p-6">
@@ -23,22 +31,20 @@ export default function IAGamificacaoPage() {
         </div>
 
         {/* Player Stats */}
-        {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
-              <div className="text-sm opacity-90 mb-1">Total de Pontos</div>
-              <div className="text-4xl font-bold">{stats.totalPoints}</div>
-            </div>
-            <div className="rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 p-6 text-white shadow-lg">
-              <div className="text-sm opacity-90 mb-1">Jogos Completos</div>
-              <div className="text-4xl font-bold">{stats.gamesPlayed}</div>
-            </div>
-            <div className="rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 p-6 text-white shadow-lg">
-              <div className="text-sm opacity-90 mb-1">Badges Conquistadas</div>
-              <div className="text-4xl font-bold">{stats.badges.length}</div>
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 p-6 text-white shadow-lg">
+            <div className="text-sm opacity-90 mb-1">Total de Pontos</div>
+            <div className="text-4xl font-bold">{stats.totalPoints}</div>
           </div>
-        )}
+          <div className="rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 p-6 text-white shadow-lg">
+            <div className="text-sm opacity-90 mb-1">Jogos Completos</div>
+            <div className="text-4xl font-bold">{stats.gamesPlayed}</div>
+          </div>
+          <div className="rounded-2xl bg-gradient-to-br from-yellow-500 to-orange-500 p-6 text-white shadow-lg">
+            <div className="text-sm opacity-90 mb-1">Badges Conquistadas</div>
+            <div className="text-4xl font-bold">{stats.badges.length}</div>
+          </div>
+        </div>
 
         {/* Mini-Games Section */}
         <div className="rounded-3xl bg-white/80 shadow-lg ring-1 ring-pink-100/70 p-8 backdrop-blur-sm">
@@ -78,7 +84,7 @@ export default function IAGamificacaoPage() {
         </div>
 
         {/* Badges Section */}
-        {stats && stats.badges.length > 0 && (
+        {stats.badges.length > 0 && (
           <div className="rounded-3xl bg-white/80 shadow-lg ring-1 ring-pink-100/70 p-8 backdrop-blur-sm">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">🏆 Suas Conquistas</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

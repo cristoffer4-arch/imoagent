@@ -16,20 +16,6 @@ export function QuizDaily({ questions, onComplete }: QuizDailyProps) {
   const [totalTime, setTotalTime] = useState(0);
   const [availableHelps, setAvailableHelps] = useState<QuizHelp[]>(['50-50', 'extra-time']);
 
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      handleAnswer(-1); // Time's up
-      return;
-    }
-
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1);
-      setTotalTime(prev => prev + 1);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
   const handleAnswer = useCallback((answerIndex: number) => {
     const isCorrect = answerIndex === questions[currentQuestion].correctAnswer;
     
@@ -44,6 +30,21 @@ export function QuizDaily({ questions, onComplete }: QuizDailyProps) {
       onComplete(correctAnswers + (isCorrect ? 1 : 0), totalTime + 1);
     }
   }, [currentQuestion, questions, correctAnswers, totalTime, onComplete]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      // Schedule answer handling after effect completes
+      setTimeout(() => handleAnswer(-1), 0);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+      setTotalTime(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, handleAnswer]);
 
   const handleUseHelp = useCallback((help: QuizHelp) => {
     if (help === 'extra-time') {
@@ -72,6 +73,7 @@ export function QuizDaily({ questions, onComplete }: QuizDailyProps) {
       </div>
 
       <QuestionCard
+        key={questions[currentQuestion].id}
         question={questions[currentQuestion]}
         questionNumber={currentQuestion + 1}
         totalQuestions={questions.length}

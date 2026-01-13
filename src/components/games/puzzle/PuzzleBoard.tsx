@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { PuzzleConfig } from '@/types/games';
 import { formatTime } from '@/lib/game-utils';
 
@@ -17,7 +17,6 @@ type Piece = {
 };
 
 export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
-  const [pieces, setPieces] = useState<Piece[]>([]);
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(config.timeLimit);
   const [hintsUsed, setHintsUsed] = useState(0);
@@ -25,8 +24,8 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
 
   const gridSize = Math.sqrt(config.pieces);
 
-  // Initialize puzzle pieces
-  useEffect(() => {
+  // Initialize puzzle pieces - use useMemo to avoid recreation
+  const [pieces, setPieces] = useState<Piece[]>(() => {
     const initialPieces: Piece[] = Array.from({ length: config.pieces }, (_, i) => ({
       id: i,
       currentIndex: i,
@@ -41,8 +40,8 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
       initialPieces[j].currentIndex = temp;
     }
     
-    setPieces(initialPieces);
-  }, [config.pieces]);
+    return initialPieces;
+  });
 
   // Timer
   useEffect(() => {
@@ -61,15 +60,21 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
     return () => clearInterval(timer);
   }, [isComplete, timeLeft]);
 
-  // Check if puzzle is complete
+  // Check if puzzle is complete - using ref to avoid triggering setState in effect
+  const completeCheckRef = useRef(false);
+  
   useEffect(() => {
-    if (pieces.length === 0) return;
+    if (pieces.length === 0 || completeCheckRef.current) return;
     
     const complete = pieces.every(piece => piece.currentIndex === piece.correctIndex);
     if (complete && !isComplete) {
-      setIsComplete(true);
+      completeCheckRef.current = true;
       const timeUsed = config.timeLimit - timeLeft;
-      onComplete(timeUsed, hintsUsed);
+      // Use setTimeout to schedule state update after effect
+      setTimeout(() => {
+        setIsComplete(true);
+        onComplete(timeUsed, hintsUsed);
+      }, 0);
     }
   }, [pieces, config.timeLimit, timeLeft, hintsUsed, isComplete, onComplete]);
 

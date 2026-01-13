@@ -37,9 +37,12 @@ export default function RunnerGamePage() {
     addPoints(gamificationPoints);
 
     // Check for badges
-    const totalScores = JSON.parse(localStorage.getItem('imoagent_game_scores') || '[]');
-    const runnerScores = totalScores.filter((s: any) => s.gameId === 'runner');
-    const totalDistance = runnerScores.reduce((acc: number, s: any) => acc + (s.metadata?.distance || 0), 0);
+    const totalScores = JSON.parse(localStorage.getItem('imoagent_game_scores') || '[]') as Array<{
+      gameId: string;
+      metadata?: { distance?: number };
+    }>;
+    const runnerScores = totalScores.filter((s) => s.gameId === 'runner');
+    const totalDistance = runnerScores.reduce((acc: number, s) => acc + (s.metadata?.distance || 0), 0);
 
     if (totalDistance >= 10000) {
       unlockBadge({

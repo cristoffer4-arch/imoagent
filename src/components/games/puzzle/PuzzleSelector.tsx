@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import type { Difficulty, PuzzleConfig } from '@/types/games';
 
 type PuzzleSelectorProps = {
@@ -64,7 +63,7 @@ export function PuzzleSelector({ onSelect }: PuzzleSelectorProps) {
         <ul className="space-y-1 text-purple-700">
           <li>• Completar sem dicas: +50% pontos</li>
           <li>• Terminar em menos de 50% do tempo: +100% pontos</li>
-          <li>• Streak de 5 dias seguidos: Badge "Mestre do Puzzle"</li>
+          <li>• Streak de 5 dias seguidos: Badge &quot;Mestre do Puzzle&quot;</li>
         </ul>
       </div>
     </div>

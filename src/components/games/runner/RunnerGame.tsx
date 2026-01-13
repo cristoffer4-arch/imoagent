@@ -14,6 +14,10 @@ type Item = {
   height: number;
 };
 
+const GRAVITY = 0.6;
+const JUMP_FORCE = -12;
+const GROUND_Y = 250;
+
 export function RunnerGame({ onGameOver }: RunnerGameProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
@@ -22,16 +26,12 @@ export function RunnerGame({ onGameOver }: RunnerGameProps) {
   const [isPowerUp, setIsPowerUp] = useState(false);
   
   const gameState = useRef({
-    player: { x: 50, y: 250, velocityY: 0, isJumping: false, width: 40, height: 50 },
+    player: { x: 50, y: GROUND_Y, velocityY: 0, isJumping: false, width: 40, height: 50 },
     items: [] as Item[],
     speed: 5,
     frameCount: 0,
     powerUpTimer: 0,
   });
-
-  const GRAVITY = 0.6;
-  const JUMP_FORCE = -12;
-  const GROUND_Y = 250;
 
   const createItem = useCallback(() => {
     const canvas = canvasRef.current;
