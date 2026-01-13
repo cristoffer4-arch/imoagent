@@ -195,3 +195,65 @@ drop policy if exists "properties-service-write" on properties;
 create policy "properties-service-write" on properties for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
 drop policy if exists "competitions-service-write" on competitions;
 create policy "competitions-service-write" on competitions for all using (auth.role() = 'service_role') with check (auth.role() = 'service_role');
+
+-- Lead City Game Tables
+create table if not exists leadcity_players (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references profiles(id) on delete cascade,
+  username text not null,
+  team text,
+  avatar text default '🏃',
+  total_matches integer default 0,
+  total_score integer default 0,
+  total_leads integer default 0,
+  best_score integer default 0,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table leadcity_players enable row level security;
+
+create table if not exists leadcity_matches (
+  id uuid primary key default gen_random_uuid(),
+  room_name text not null,
+  started_at timestamptz default now(),
+  ended_at timestamptz,
+  duration integer, -- seconds
+  player_count integer default 0,
+  created_at timestamptz default now()
+);
+alter table leadcity_matches enable row level security;
+
+create table if not exists leadcity_scores (
+  id uuid primary key default gen_random_uuid(),
+  match_id uuid references leadcity_matches(id) on delete cascade,
+  player_id uuid references leadcity_players(id) on delete cascade,
+  score integer default 0,
+  leads_collected integer default 0,
+  distance integer default 0,
+  final_position integer,
+  created_at timestamptz default now()
+);
+alter table leadcity_scores enable row level security;
+
+-- RLS policies for Lead City
+drop policy if exists "leadcity-players-read" on leadcity_players;
+create policy "leadcity-players-read" on leadcity_players for select using (true);
+
+drop policy if exists "leadcity-players-manage" on leadcity_players;
+create policy "leadcity-players-manage" on leadcity_players for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+drop policy if exists "leadcity-matches-read" on leadcity_matches;
+create policy "leadcity-matches-read" on leadcity_matches for select using (true);
+
+drop policy if exists "leadcity-matches-write" on leadcity_matches;
+create policy "leadcity-matches-write" on leadcity_matches for insert using (true) with check (true);
+
+drop policy if exists "leadcity-scores-read" on leadcity_scores;
+create policy "leadcity-scores-read" on leadcity_scores for select using (true);
+
+drop policy if exists "leadcity-scores-write" on leadcity_scores;
+create policy "leadcity-scores-write" on leadcity_scores for insert using (
+  exists (select 1 from leadcity_players p where p.id = player_id and p.user_id = auth.uid())
+) with check (
+  exists (select 1 from leadcity_players p where p.id = player_id and p.user_id = auth.uid())
+);
