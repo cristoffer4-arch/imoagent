@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <!-- Modern luxury villa with pool -->
+  <defs>
+    <linearGradient id="sky2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#B8E0FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="building2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8E8E8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="pool2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00CED1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1E90FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grass2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7FD855;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2D7A1F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="800" height="800" fill="url(#sky2)"/>
+  
+  <!-- Mountains in background -->
+  <polygon points="0,400 200,250 400,350 600,280 800,380 800,800 0,800" fill="#8B7355" opacity="0.3"/>
+  
+  <!-- Garden -->
+  <rect y="480" width="800" height="320" fill="url(#grass2)"/>
+  
+  <!-- Pool deck -->
+  <rect x="50" y="580" width="350" height="180" fill="#D2B48C"/>
+  
+  <!-- Pool -->
+  <rect x="70" y="600" width="310" height="140" rx="5" fill="url(#pool2)"/>
+  <!-- Pool water reflection -->
+  <rect x="80" y="610" width="290" height="120" rx="5" fill="#87CEEB" opacity="0.4"/>
+  
+  <!-- Main modern building - asymmetric design -->
+  <rect x="420" y="320" width="320" height="260" fill="url(#building2)"/>
+  <rect x="450" y="280" width="120" height="40" fill="#696969"/> <!-- Flat roof section -->
+  
+  <!-- Second floor terrace -->
+  <rect x="580" y="350" width="140" height="230" fill="url(#building2)"/>
+  
+  <!-- Large glass windows -->
+  <rect x="460" y="360" width="90" height="120" rx="3" fill="#4682B4" opacity="0.6"/>
+  <rect x="570" y="360" width="90" height="120" rx="3" fill="#4682B4" opacity="0.6"/>
+  <rect x="680" y="360" width="40" height="120" rx="3" fill="#4682B4" opacity="0.6"/>
+  
+  <!-- Ground floor windows -->
+  <rect x="460" y="500" width="90" height="80" rx="3" fill="#4682B4" opacity="0.6"/>
+  <rect x="570" y="500" width="90" height="80" rx="3" fill="#4682B4" opacity="0.6"/>
+  <rect x="680" y="500" width="40" height="80" rx="3" fill="#4682B4" opacity="0.6"/>
+  
+  <!-- Modern entrance -->
+  <rect x="440" y="500" width="15" height="80" fill="#333333"/>
+  <rect x="365" y="520" width="75" height="60" fill="#333333"/>
+  
+  <!-- Balcony railings -->
+  <rect x="580" y="345" width="140" height="3" fill="#696969"/>
+  <rect x="450" y="275" width="120" height="3" fill="#696969"/>
+  
+  <!-- Terrace furniture -->
+  <ellipse cx="630" cy="400" rx="15" ry="15" fill="#8B4513"/>
+  <ellipse cx="660" cy="400" rx="15" ry="15" fill="#8B4513"/>
+  <rect x="620" y="405" width="60" height="5" fill="#654321"/>
+  
+  <!-- Garden landscaping -->
+  <ellipse cx="180" cy="560" rx="40" ry="25" fill="#2E8B57"/>
+  <ellipse cx="280" cy="545" rx="35" ry="22" fill="#3CB371"/>
+  <ellipse cx="230" cy="570" rx="30" ry="20" fill="#90EE90"/>
+  
+  <!-- Trees -->
+  <ellipse cx="120" cy="520" rx="35" ry="45" fill="#228B22"/>
+  <rect x="115" y="520" width="10" height="60" fill="#654321"/>
+  
+  <ellipse cx="720" cy="540" rx="40" ry="50" fill="#2F4F2F"/>
+  <rect x="715" y="540" width="10" height="70" fill="#654321"/>
+  
+  <!-- Sun loungers by pool -->
+  <rect x="100" y="620" width="60" height="25" rx="3" fill="#F4A460"/>
+  <rect x="200" y="640" width="60" height="25" rx="3" fill="#F4A460"/>
+  
+  <!-- Umbrella -->
+  <rect x="310" y="640" width="5" height="50" fill="#8B4513"/>
+  <path d="M 280 640 Q 312 620 345 640" fill="#FF6347" opacity="0.8"/>
+  
+  <!-- Clouds -->
+  <ellipse cx="200" cy="120" rx="50" ry="30" fill="white" opacity="0.8"/>
+  <ellipse cx="240" cy="120" rx="60" ry="35" fill="white" opacity="0.8"/>
+  <ellipse cx="600" cy="100" rx="45" ry="28" fill="white" opacity="0.8"/>
+</svg>

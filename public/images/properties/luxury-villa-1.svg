@@ -1,0 +1,101 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800">
+  <!-- Sky gradient background -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#87CEEB;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E0F6FF;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="wallGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#F5E6D3;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#D4C4A8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="roofGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B4513;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#654321;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="poolGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#40E0D0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#20B2AA;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="gardenGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#90EE90;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#228B22;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky -->
+  <rect width="800" height="800" fill="url(#skyGradient)"/>
+  
+  <!-- Sun -->
+  <circle cx="680" cy="120" r="60" fill="#FFD700" opacity="0.8"/>
+  
+  <!-- Garden/Lawn -->
+  <rect y="500" width="800" height="300" fill="url(#gardenGradient)"/>
+  
+  <!-- Pool -->
+  <rect x="100" y="600" width="200" height="120" rx="10" fill="url(#poolGradient)"/>
+  <rect x="110" y="610" width="180" height="100" rx="8" fill="#87CEEB" opacity="0.6"/>
+  
+  <!-- Palm trees -->
+  <ellipse cx="80" cy="580" rx="25" ry="35" fill="#228B22"/>
+  <rect x="75" y="580" width="10" height="80" fill="#8B4513"/>
+  <ellipse cx="720" cy="560" rx="30" ry="40" fill="#228B22"/>
+  <rect x="715" y="560" width="10" height="100" fill="#8B4513"/>
+  
+  <!-- Main Villa Building -->
+  <!-- Left wing -->
+  <rect x="80" y="350" width="200" height="180" fill="url(#wallGradient)"/>
+  <polygon points="80,350 180,280 280,350" fill="url(#roofGradient)"/>
+  
+  <!-- Main building -->
+  <rect x="250" y="300" width="300" height="250" fill="url(#wallGradient)"/>
+  <polygon points="250,300 400,220 550,300" fill="url(#roofGradient)"/>
+  
+  <!-- Right wing -->
+  <rect x="520" y="360" width="200" height="170" fill="url(#wallGradient)"/>
+  <polygon points="520,360 620,290 720,360" fill="url(#roofGradient)"/>
+  
+  <!-- Windows - Main building -->
+  <rect x="290" y="340" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="370" y="340" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="450" y="340" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  
+  <rect x="290" y="440" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="370" y="440" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="450" y="440" width="60" height="80" rx="5" fill="#4682B4" opacity="0.7"/>
+  
+  <!-- Main entrance door -->
+  <rect x="360" y="460" width="80" height="90" rx="5" fill="#8B4513"/>
+  <circle cx="425" cy="505" r="5" fill="#FFD700"/>
+  
+  <!-- Windows - Left wing -->
+  <rect x="120" y="380" width="50" height="70" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="200" y="380" width="50" height="70" rx="5" fill="#4682B4" opacity="0.7"/>
+  
+  <!-- Windows - Right wing -->
+  <rect x="550" y="390" width="50" height="70" rx="5" fill="#4682B4" opacity="0.7"/>
+  <rect x="640" y="390" width="50" height="70" rx="5" fill="#4682B4" opacity="0.7"/>
+  
+  <!-- Balconies -->
+  <rect x="360" y="320" width="80" height="5" fill="#654321"/>
+  <rect x="285" y="425" width="80" height="5" fill="#654321"/>
+  <rect x="445" y="425" width="80" height="5" fill="#654321"/>
+  
+  <!-- Garden details -->
+  <!-- Bushes -->
+  <ellipse cx="340" cy="560" rx="30" ry="20" fill="#228B22"/>
+  <ellipse cx="460" cy="560" rx="30" ry="20" fill="#228B22"/>
+  <ellipse cx="400" cy="570" rx="25" ry="18" fill="#32CD32"/>
+  
+  <!-- Decorative elements -->
+  <rect x="50" y="580" width="20" height="60" fill="#D2691E"/>
+  <rect x="730" y="580" width="20" height="60" fill="#D2691E"/>
+  
+  <!-- Clouds -->
+  <ellipse cx="150" cy="100" rx="40" ry="25" fill="white" opacity="0.7"/>
+  <ellipse cx="180" cy="100" rx="50" ry="30" fill="white" opacity="0.7"/>
+  <ellipse cx="210" cy="100" rx="40" ry="25" fill="white" opacity="0.7"/>
+  
+  <ellipse cx="550" cy="150" rx="35" ry="20" fill="white" opacity="0.7"/>
+  <ellipse cx="575" cy="150" rx="45" ry="25" fill="white" opacity="0.7"/>
+</svg>
