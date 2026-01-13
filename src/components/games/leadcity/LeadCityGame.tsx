@@ -49,10 +49,8 @@ export function LeadCityGame() {
   useEffect(() => {
     // Connect to Socket.IO
     if (!socketRef.current) {
-      socketRef.current = socketIOClient({
-        path: '/api/socket',
-      });
-
+const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:10000';
+      socketRef.current = socketIOClient(socketUrl)
       socketRef.current.on('connect', () => {
         console.log('Connected to Socket.IO');
       });
