@@ -1,17 +1,16 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Phaser from 'phaser';
-import { io, Socket } from 'socket.io-client';
-import { GAME_CONFIG } from '@/../game/phaser/config/gameConfig';
+import socketIOClient from 'socket.io-client';
 import { createClient } from '@/lib/supabase/client';
 
 export function LeadCityGame() {
-  const gameRef = useRef<Phaser.Game | null>(null);
-  const socketRef = useRef<Socket | null>(null);
+  const gameRef = useRef<any | null>(null);
+  const socketRef = useRef<any | null>(null);
   const [gameState, setGameState] = useState<'lobby' | 'playing' | 'finished'>('lobby');
   const [player, setPlayer] = useState<{ id: string; username: string; avatar: string } | null>(null);
   const [result, setResult] = useState<{ score: number; leads: number; distance: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Initialize Supabase client and get user
@@ -48,7 +47,7 @@ export function LeadCityGame() {
   useEffect(() => {
     // Connect to Socket.IO
     if (!socketRef.current) {
-      socketRef.current = io({
+      socketRef.current = socketIOClient({
         path: '/api/socket',
       });
 
@@ -68,47 +67,49 @@ export function LeadCityGame() {
     };
   }, []);
 
-  const startGame = () => {
+  const startGame = async () => {
     if (!player || !socketRef.current) return;
 
+    setIsLoading(true);
     setGameState('playing');
 
-    // Initialize Phaser game
-    const config = {
-      ...GAME_CONFIG,
-      parent: 'phaser-game',
-      callbacks: {
-        postBoot: (game: Phaser.Game) => {
-          // Start with Lobby scene, passing socket and player data
-          game.registry.set('socket', socketRef.current);
-          game.registry.set('player', player);
+    try {
+      // Dynamically import Phaser and game config
+      const Phaser = await import('phaser');
+      const { GAME_CONFIG } = await import('@/../game/phaser/config/gameConfig');
+
+      // Initialize Phaser game
+      const config = {
+        ...GAME_CONFIG,
+        parent: 'phaser-game',
+      };
+
+      const game = new Phaser.Game(config);
+      gameRef.current = game;
+
+      // Pass data to game registry
+      game.registry.set('socket', socketRef.current);
+      game.registry.set('player', player);
+      
+      // Monitor for game end
+      const checkGameEnd = setInterval(() => {
+        const gameResult = game.registry.get('gameResult');
+        if (gameResult) {
+          setResult(gameResult);
+          setGameState('finished');
+          clearInterval(checkGameEnd);
           
-          // Monitor for game end
-          const checkGameEnd = setInterval(() => {
-            const gameResult = game.registry.get('gameResult');
-            if (gameResult) {
-              setResult(gameResult);
-              setGameState('finished');
-              clearInterval(checkGameEnd);
-              
-              // Save to Supabase
-              saveGameResult(gameResult);
-            }
-          }, 500);
+          // Save to Supabase
+          saveGameResult(gameResult);
         }
-      }
-    };
+      }, 500);
 
-    gameRef.current = new Phaser.Game(config);
-
-    // Pass data to first scene
-    gameRef.current.scene.start('BootScene');
-    setTimeout(() => {
-      gameRef.current?.scene.start('LobbyScene', {
-        socket: socketRef.current,
-        player: player
-      });
-    }, 100);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error loading game:', error);
+      setIsLoading(false);
+      setGameState('lobby');
+    }
   };
 
   const saveGameResult = async (result: { score: number; leads: number; distance: number }) => {
@@ -215,10 +216,10 @@ export function LeadCityGame() {
 
               <button
                 onClick={startGame}
-                disabled={!player}
+                disabled={!player || isLoading}
                 className="rounded-full bg-gradient-to-r from-pink-500 to-purple-500 px-8 py-4 text-white text-lg font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {player ? '🎮 Começar Jogo Multiplayer' : '⏳ Carregando...'}
+                {isLoading ? '⏳ Carregando jogo...' : player ? '🎮 Começar Jogo Multiplayer' : '⏳ Carregando...'}
               </button>
             </div>
           </div>

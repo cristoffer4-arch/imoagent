@@ -3,11 +3,16 @@
  * Players can create or join game rooms
  */
 
-import Phaser from 'phaser';
-import type { Socket } from 'socket.io-client';
+import * as Phaser from 'phaser';
+
+interface Player {
+  id: string;
+  username: string;
+  avatar: string;
+}
 
 export class LobbyScene extends Phaser.Scene {
-  private socket?: Socket;
+  private socket?: unknown;
   private rooms: Array<{ name: string; players: number; maxPlayers: number }> = [];
   private selectedRoom?: string;
 
@@ -15,7 +20,7 @@ export class LobbyScene extends Phaser.Scene {
     super({ key: 'LobbyScene' });
   }
 
-  init(data: { socket: Socket; player: any }) {
+  init(data: { socket: unknown; player: Player }) {
     this.socket = data.socket;
     this.registry.set('player', data.player);
   }
@@ -38,14 +43,15 @@ export class LobbyScene extends Phaser.Scene {
 
     // Request rooms from server
     if (this.socket) {
-      this.socket.emit('get-rooms');
+      const socket = this.socket as any;
+      socket.emit('get-rooms');
       
-      this.socket.on('rooms-list', (rooms: any[]) => {
+      socket.on('rooms-list', (rooms: Array<{ name: string; players: number; maxPlayers: number }>) => {
         this.rooms = rooms;
         this.displayRooms();
       });
 
-      this.socket.on('room-joined', (data: any) => {
+      socket.on('room-joined', (data: { roomName: string; players: Player[] }) => {
         // Start game scene
         this.scene.start('GameScene', { 
           socket: this.socket,
@@ -55,7 +61,7 @@ export class LobbyScene extends Phaser.Scene {
         });
       });
 
-      this.socket.on('error', (data: any) => {
+      socket.on('error', (data: { message: string }) => {
         console.error('Socket error:', data.message);
       });
     }
@@ -63,7 +69,7 @@ export class LobbyScene extends Phaser.Scene {
     // Create default room button
     this.createButton(width / 2, height - 100, 'Criar Sala "Geral"', () => {
       if (this.socket) {
-        this.socket.emit('create-room', {
+        (this.socket as any).emit('create-room', {
           roomName: 'Geral',
           player: this.registry.get('player')
         });
@@ -88,7 +94,7 @@ export class LobbyScene extends Phaser.Scene {
       const roomText = `${room.name} (${room.players}/${room.maxPlayers})`;
       this.createButton(width / 2, y, roomText, () => {
         if (this.socket) {
-          this.socket.emit('join-room', {
+          (this.socket as any).emit('join-room', {
             roomName: room.name,
             player: this.registry.get('player')
           });
@@ -110,6 +116,7 @@ export class LobbyScene extends Phaser.Scene {
     button.on('pointerout', () => button.setFillStyle(0x6366f1));
     button.on('pointerdown', onClick);
 
-    return { button, buttonText };
+    const socket = this.socket as any;
+    return { button, buttonText, socket };
   }
 }

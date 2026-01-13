@@ -12,10 +12,6 @@ interface SocketWithIO extends NetSocket {
   server: SocketServer;
 }
 
-interface NextApiResponseWithSocket {
-  socket: SocketWithIO;
-}
-
 // Game state management
 const rooms = new Map<string, {
   players: Map<string, {
@@ -30,7 +26,7 @@ const rooms = new Map<string, {
   startedAt?: Date;
 }>();
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   return new Response(
     JSON.stringify({
       message: 'Socket.IO server should be initialized via server.ts',
@@ -71,7 +67,7 @@ export function initSocketIO(server: HTTPServer) {
     });
 
     // Create room
-    socket.on('create-room', (data: { roomName: string; player: any }) => {
+    socket.on('create-room', (data: { roomName: string; player: { id: string; username: string; avatar: string } }) => {
       const { roomName, player } = data;
       
       if (rooms.has(roomName)) {
@@ -80,7 +76,7 @@ export function initSocketIO(server: HTTPServer) {
       }
 
       rooms.set(roomName, {
-        players: new Map([[socket.id, { ...player, id: socket.id }]]),
+        players: new Map([[socket.id, { ...player, id: socket.id, position: { x: 50, y: 250 }, score: 0, leads: 0 }]]),
         startedAt: new Date()
       });
 
@@ -92,7 +88,7 @@ export function initSocketIO(server: HTTPServer) {
     });
 
     // Join room
-    socket.on('join-room', (data: { roomName: string; player: any }) => {
+    socket.on('join-room', (data: { roomName: string; player: { id: string; username: string; avatar: string } }) => {
       const { roomName, player } = data;
       
       const room = rooms.get(roomName);
@@ -106,7 +102,7 @@ export function initSocketIO(server: HTTPServer) {
         return;
       }
 
-      room.players.set(socket.id, { ...player, id: socket.id });
+      room.players.set(socket.id, { ...player, id: socket.id, position: { x: 50, y: 250 }, score: 0, leads: 0 });
       socket.join(roomName);
       
       // Notify all players in room

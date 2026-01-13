@@ -3,8 +3,7 @@
  * Multiplayer 2D platformer with real-time synchronization
  */
 
-import Phaser from 'phaser';
-import type { Socket } from 'socket.io-client';
+import * as Phaser from 'phaser';
 import { GAME_CONSTANTS } from '../config/gameConfig';
 
 interface Player {
@@ -17,14 +16,20 @@ interface Player {
 }
 
 export class GameScene extends Phaser.Scene {
-  private socket?: Socket;
+  private socket?: unknown;
   private roomName?: string;
   private player?: Phaser.Physics.Arcade.Sprite;
   private playerData?: Player;
   private otherPlayers: Map<string, { sprite: Phaser.Physics.Arcade.Sprite; text: Phaser.GameObjects.Text }> = new Map();
   
   private cursors?: Phaser.Types.Input.Keyboard.CursorKeys;
-  private wasdKeys?: any;
+  private wasdKeys?: {
+    up: Phaser.Input.Keyboard.Key;
+    left: Phaser.Input.Keyboard.Key;
+    down: Phaser.Input.Keyboard.Key;
+    right: Phaser.Input.Keyboard.Key;
+    space: Phaser.Input.Keyboard.Key;
+  };
   
   private items?: Phaser.Physics.Arcade.Group;
   private obstacles?: Phaser.Physics.Arcade.Group;
@@ -47,17 +52,12 @@ export class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
-  init(data: { socket: Socket; roomName: string; players: Player[]; player: Player }) {
+  init(data: { socket: unknown; roomName: string; players: Player[]; player: Player }) {
     this.socket = data.socket;
     this.roomName = data.roomName;
     this.playerData = data.player;
     
-    // Initialize other players
-    data.players.forEach(p => {
-      if (p.id !== this.socket?.id) {
-        // Will be created in create()
-      }
-    });
+    // Initialize other players - will be created in create()
   }
 
   create() {
@@ -100,11 +100,29 @@ export class GameScene extends Phaser.Scene {
       down: Phaser.Input.Keyboard.KeyCodes.S,
       right: Phaser.Input.Keyboard.KeyCodes.D,
       space: Phaser.Input.Keyboard.KeyCodes.SPACE
-    });
+    }) as {
+      up: Phaser.Input.Keyboard.Key;
+      left: Phaser.Input.Keyboard.Key;
+      down: Phaser.Input.Keyboard.Key;
+      right: Phaser.Input.Keyboard.Key;
+      space: Phaser.Input.Keyboard.Key;
+    };
 
     // Collisions
-    this.physics.add.overlap(this.player, this.items, this.collectItem as any, undefined, this);
-    this.physics.add.overlap(this.player, this.obstacles, this.hitObstacle as any, undefined, this);
+    this.physics.add.overlap(
+      this.player,
+      this.items,
+      (player, item) => this.collectItem(player as Phaser.Physics.Arcade.Sprite, item as Phaser.Physics.Arcade.Sprite),
+      undefined,
+      this
+    );
+    this.physics.add.overlap(
+      this.player,
+      this.obstacles,
+      (player, obstacle) => this.hitObstacle(player as Phaser.Physics.Arcade.Sprite, obstacle as Phaser.Physics.Arcade.Sprite),
+      undefined,
+      this
+    );
 
     // HUD
     this.createHUD();
@@ -154,7 +172,7 @@ export class GameScene extends Phaser.Scene {
 
     // Sync position with other players
     if (this.socket && this.roomName) {
-      this.socket.emit('update-position', {
+      (this.socket as any).emit('update-position', {
         roomName: this.roomName,
         position: { x: this.player.x, y: this.player.y }
       });
@@ -166,7 +184,6 @@ export class GameScene extends Phaser.Scene {
   }
 
   private createBuildings() {
-    const width = this.cameras.main.width;
     const height = this.cameras.main.height;
     
     // Simple building silhouettes
@@ -219,14 +236,16 @@ export class GameScene extends Phaser.Scene {
   private setupSocketEvents() {
     if (!this.socket) return;
 
+    const socket = this.socket as any;
+
     // Player joined
-    this.socket.on('player-joined', (data: { player: Player; players: Player[] }) => {
+    socket.on('player-joined', (data: { player: Player; players: Player[] }) => {
       console.log('Player joined:', data.player.username);
       // Could add visual notification
     });
 
     // Player moved
-    this.socket.on('player-moved', (data: { playerId: string; position: { x: number; y: number } }) => {
+    socket.on('player-moved', (data: { playerId: string; position: { x: number; y: number } }) => {
       let otherPlayer = this.otherPlayers.get(data.playerId);
       
       if (!otherPlayer) {
@@ -259,17 +278,18 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Item collected by any player
-    this.socket.on('item-collected', (data: { playerId: string; itemId: string }) => {
+    socket.on('item-collected', (data: { playerId: string; itemId: string }) => {
       // Remove item from scene
-      this.items?.getChildren().forEach((item: any) => {
-        if (item.getData('id') === data.itemId) {
-          item.destroy();
+      this.items?.getChildren().forEach((item) => {
+        const gameObject = item as Phaser.Physics.Arcade.Sprite;
+        if (gameObject.getData('id') === data.itemId) {
+          gameObject.destroy();
         }
       });
     });
 
     // Rankings updated
-    this.socket.on('rankings-updated', (rankings: Array<{ playerId: string; username: string; score: number; position: number }>) => {
+    socket.on('rankings-updated', (rankings: Array<{ playerId: string; username: string; score: number; position: number }>) => {
       let rankingText = '🏆 Ranking\n';
       rankings.slice(0, 3).forEach(r => {
         const emoji = r.position === 1 ? '🥇' : r.position === 2 ? '🥈' : '🥉';
@@ -279,7 +299,7 @@ export class GameScene extends Phaser.Scene {
     });
 
     // Player left
-    this.socket.on('player-left', (data: { playerId: string }) => {
+    socket.on('player-left', (data: { playerId: string }) => {
       const otherPlayer = this.otherPlayers.get(data.playerId);
       if (otherPlayer) {
         otherPlayer.sprite.destroy();
@@ -314,7 +334,7 @@ export class GameScene extends Phaser.Scene {
       item = this.obstacles!.create(x, y, '') as Phaser.Physics.Arcade.Sprite;
       item.setDisplaySize(30, 30);
       item.setTint(0xff0000);
-      item.body.setAllowGravity(false);
+      if (item.body) (item.body as Phaser.Physics.Arcade.Body).allowGravity = false;
     } else {
       item = this.items!.create(x, y, '') as Phaser.Physics.Arcade.Sprite;
       item.setDisplaySize(20, 20);
@@ -324,7 +344,7 @@ export class GameScene extends Phaser.Scene {
       else if (selectedType === 'contrato') item.setTint(0xfbbf24);
       else if (selectedType === 'powerup') item.setTint(0xa855f7);
       
-      item.body.setAllowGravity(false);
+      if (item.body) (item.body as Phaser.Physics.Arcade.Body).allowGravity = false;
     }
     
     item.setData('type', selectedType);
@@ -332,14 +352,15 @@ export class GameScene extends Phaser.Scene {
     item.setVelocityX(-GAME_CONSTANTS.OBSTACLE_SPEED);
   }
 
-  private collectItem(player: any, item: any) {
+  private collectItem(_player: Phaser.Physics.Arcade.Sprite, item: Phaser.Physics.Arcade.Sprite) {
     const type = item.getData('type');
     const itemId = item.getData('id');
     
     if (type === 'powerup') {
       this.activatePowerUp();
     } else {
-      const points = (GAME_CONSTANTS.LEAD_POINTS as any)[type] || 10;
+      const pointsMap: Record<string, number> = GAME_CONSTANTS.LEAD_POINTS;
+      const points = pointsMap[type] || 10;
       const finalPoints = this.isPowerUp ? points * GAME_CONSTANTS.POWERUP_MULTIPLIER : points;
       
       this.score += finalPoints;
@@ -350,7 +371,7 @@ export class GameScene extends Phaser.Scene {
       
       // Notify server
       if (this.socket && this.roomName) {
-        this.socket.emit('collect-item', {
+        (this.socket as any).emit('collect-item', {
           roomName: this.roomName,
           itemId: itemId,
           points: finalPoints
@@ -361,7 +382,7 @@ export class GameScene extends Phaser.Scene {
     item.destroy();
   }
 
-  private hitObstacle(player: any, obstacle: any) {
+  private hitObstacle(_player: Phaser.Physics.Arcade.Sprite, _obstacle: Phaser.Physics.Arcade.Sprite) {
     // Game over
     this.endGame();
   }
@@ -392,7 +413,7 @@ export class GameScene extends Phaser.Scene {
   private endGame() {
     // Notify server
     if (this.socket && this.roomName) {
-      this.socket.emit('game-over', {
+      (this.socket as any).emit('game-over', {
         roomName: this.roomName,
         finalScore: this.score,
         distance: Math.round(this.distance)

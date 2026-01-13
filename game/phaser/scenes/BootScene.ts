@@ -3,7 +3,7 @@
  * Loads all game assets and initializes the game
  */
 
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 
 export class BootScene extends Phaser.Scene {
   constructor() {

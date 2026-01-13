@@ -3,7 +3,7 @@
  * Phaser 3 configuration for the multiplayer platformer game
  */
 
-import Phaser from 'phaser';
+import * as Phaser from 'phaser';
 import { BootScene } from '../scenes/BootScene';
 import { LobbyScene } from '../scenes/LobbyScene';
 import { GameScene } from '../scenes/GameScene';

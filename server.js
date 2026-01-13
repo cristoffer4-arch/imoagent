@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+/* eslint-disable @typescript-eslint/no-require-imports */
 /**
  * Custom server to run Socket.IO alongside Next.js
  * This allows real-time multiplayer functionality for Lead City game
