@@ -16,6 +16,14 @@ type Piece = {
   correctIndex: number;
 };
 
+// Available luxury property images for puzzle game
+const PROPERTY_IMAGES = [
+  '/images/properties/luxury-villa-1.svg',
+  '/images/properties/luxury-villa-2.svg',
+  '/images/properties/luxury-villa-3.svg',
+  '/images/properties/luxury-villa-4.svg',
+] as const;
+
 export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
   const [selectedPiece, setSelectedPiece] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(config.timeLimit);
@@ -26,13 +34,7 @@ export function PuzzleBoard({ config, onComplete, onQuit }: PuzzleBoardProps) {
   
   // Select a random property image for this puzzle session
   const [propertyImage] = useState(() => {
-    const images = [
-      '/images/properties/luxury-villa-1.svg',
-      '/images/properties/luxury-villa-2.svg',
-      '/images/properties/luxury-villa-3.svg',
-      '/images/properties/luxury-villa-4.svg',
-    ];
-    return images[Math.floor(Math.random() * images.length)];
+    return PROPERTY_IMAGES[Math.floor(Math.random() * PROPERTY_IMAGES.length)];
   });
 
   // Initialize puzzle pieces - use useMemo to avoid recreation
