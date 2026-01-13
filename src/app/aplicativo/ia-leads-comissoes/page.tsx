@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Users, Plus, TrendingUp, Euro, Phone, Mail, MapPin, Star, AlertCircle } from 'lucide-react'
+import { Users, Plus, TrendingUp, Euro, Phone, Mail, Star, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 

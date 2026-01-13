@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Calendar, Plus, Clock, Bell, TrendingUp, Target, Users, Home, Award, FileText, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
+import { Calendar, Plus, Clock, Bell, ChevronLeft, ChevronRight, Play, Pause } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
@@ -278,7 +278,7 @@ export default function IAOrquestradoraPage() {
               <div className="text-3xl">🎯</div>
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900">Coaching SMART</h4>
-                <p className="text-sm text-gray-600">Meta "Fechar 10 vendas" - 60% completa</p>
+                <p className="text-sm text-gray-600">Meta &quot;Fechar 10 vendas&quot; - 60% completa</p>
               </div>
               <span className="text-sm text-gray-500">Há 4h</span>
             </div>

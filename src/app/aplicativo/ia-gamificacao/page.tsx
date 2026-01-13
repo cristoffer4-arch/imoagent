@@ -1,7 +1,6 @@
 'use client'
 
-import { useState } from 'react'
-import { Trophy, Star, Award, TrendingUp, Gift, Zap, Medal, Crown } from 'lucide-react'
+import { Trophy, Star, Award, Gift, Zap, Medal, Crown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
 const MOCK_RANKING = [
