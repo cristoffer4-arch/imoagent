@@ -55,7 +55,7 @@ export default function IAGamificacaoPage() {
             <p className="text-gray-600">Jogos para desenvolver habilidades e ganhar pontos</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <GameCard
               icon="🧩"
               title="Quebra-Cabeça"
@@ -73,6 +73,12 @@ export default function IAGamificacaoPage() {
               title="Caça Leads"
               description="Runner infinito"
               onClick={() => router.push('/aplicativo/games/runner')}
+            />
+            <GameCard
+              icon="🏙️"
+              title="Lead City"
+              description="Multiplayer plataforma 2D"
+              onClick={() => router.push('/aplicativo/games/leadcity')}
             />
             <GameCard
               icon="🧠"
