@@ -5,6 +5,8 @@ import socketIOClient from 'socket.io-client';
 import { createClient } from '@/lib/supabase/client';
 
 export function LeadCityGame() {
+  // Note: Using 'any' for Phaser.Game and Socket types to avoid complex type conflicts
+  // during SSR/build. Game is dynamically imported client-side only.
   const gameRef = useRef<any | null>(null);
   const socketRef = useRef<any | null>(null);
   const [gameState, setGameState] = useState<'lobby' | 'playing' | 'finished'>('lobby');
