@@ -4,7 +4,7 @@
  */
 
 import * as Phaser from 'phaser';
-import type { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 import { GAME_CONSTANTS } from '../config/gameConfig';
 
 interface Player {
@@ -314,7 +314,9 @@ export class GameScene extends Phaser.Scene {
       item = this.obstacles!.create(x, y, '') as Phaser.Physics.Arcade.Sprite;
       item.setDisplaySize(30, 30);
       item.setTint(0xff0000);
-      item.body.setAllowGravity(false);
+      if (item.body) {
+        (item.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+      }
     } else {
       item = this.items!.create(x, y, '') as Phaser.Physics.Arcade.Sprite;
       item.setDisplaySize(20, 20);
@@ -324,7 +326,9 @@ export class GameScene extends Phaser.Scene {
       else if (selectedType === 'contrato') item.setTint(0xfbbf24);
       else if (selectedType === 'powerup') item.setTint(0xa855f7);
       
-      item.body.setAllowGravity(false);
+      if (item.body) {
+        (item.body as Phaser.Physics.Arcade.Body).allowGravity = false;
+      }
     }
     
     item.setData('type', selectedType);

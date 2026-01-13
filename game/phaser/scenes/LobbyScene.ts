@@ -4,7 +4,7 @@
  */
 
 import * as Phaser from 'phaser';
-import type { Socket } from 'socket.io-client';
+import { Socket } from 'socket.io-client';
 
 export class LobbyScene extends Phaser.Scene {
   private socket?: Socket;

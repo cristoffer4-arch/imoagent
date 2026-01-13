@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { LeadCityGame } from '@/components/games/leadcity/LeadCityGame';
 
+// Disable static generation for this page since it requires browser APIs
+export const dynamic = 'force-dynamic';
+
 export default function LeadCityPage() {
   return (
     <div>
