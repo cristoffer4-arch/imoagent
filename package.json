@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
+    "@netlify/functions": "^2.8.2",
     "@hookform/resolvers": "^3.3.3",
     "@stripe/stripe-js": "^4.10.0",
     "@supabase/ssr": "^0.1.0",
