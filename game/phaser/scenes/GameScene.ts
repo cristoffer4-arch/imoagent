@@ -18,6 +18,7 @@ interface Player {
 export class GameScene extends Phaser.Scene {
   private socket?: unknown;
   private roomName?: string;
+  private gameMode?: string;
   private player?: Phaser.Physics.Arcade.Sprite;
   private playerData?: Player;
   private otherPlayers: Map<string, { sprite: Phaser.Physics.Arcade.Sprite; text: Phaser.GameObjects.Text }> = new Map();
@@ -52,10 +53,11 @@ export class GameScene extends Phaser.Scene {
     super({ key: 'GameScene' });
   }
 
-  init(data: { socket: unknown; roomName: string; players: Player[]; player: Player }) {
+  init(data: { socket: unknown; roomName: string; players: Player[]; player: Player; gameMode?: string }) {
     this.socket = data.socket;
     this.roomName = data.roomName;
     this.playerData = data.player;
+    this.gameMode = data.gameMode;
     
     // Initialize other players - will be created in create()
   }
@@ -180,7 +182,7 @@ export class GameScene extends Phaser.Scene {
     this.distance += Math.abs(this.player.body?.velocity.x || 0) * 0.001;
 
     // Sync position with other players
-    if (this.socket && this.roomName) {
+    if (this.socket && this.roomName && this.gameMode !== 'solo') {
       (this.socket as any).emit('update-position', {
         roomName: this.roomName,
         position: { x: this.player.x, y: this.player.y }
@@ -255,7 +257,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private setupSocketEvents() {
-    if (!this.socket) return;
+    if (!this.socket || this.gameMode === 'solo') return;
 
     const socket = this.socket as any;
 
@@ -455,17 +457,6 @@ export class GameScene extends Phaser.Scene {
     this.scene.pause();
   }
 
-  shutdown() {
-    // Cleanup
-    this.otherPlayers.forEach(p => {
-      p.sprite.destroy();
-      p.text.destroy();
-    });
-    this.otherPlayers.clear();
-  }
-}
-
-
   // Helper method to create clouds
   private addCloud(x: number, y: number) {
     const cloud = this.add.graphics();
@@ -480,3 +471,13 @@ export class GameScene extends Phaser.Scene {
     // Add parallax effect
     cloud.setDepth(-1);
   }
+
+  shutdown() {
+    // Cleanup
+    this.otherPlayers.forEach(p => {
+      p.sprite.destroy();
+      p.text.destroy();
+    });
+    this.otherPlayers.clear();
+  }
+}
