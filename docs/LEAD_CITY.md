@@ -9,6 +9,9 @@ Lead City is a **multiplayer 2D platformer** built with **Phaser 3** and **Socke
 ### 🎮 Gameplay
 - **Side-scrolling platformer** with smooth physics
 - **Real-time multiplayer** with up to 8 players per room
+- - **Game Modes**:
+  - **Solo Mode** 🏃: Play individually, perfect for practice and skill improvement
+  - **Team Mode** 👥: Create or join rooms with teammates from your department
 - **Collectibles**: 
   - 🟢 Lead Qualificado (10 pts)
   - 🔵 Lead Morno (5 pts)
