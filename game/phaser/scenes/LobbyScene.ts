@@ -1,8 +1,7 @@
 /**
- * Lobby Scene - Room Selection
- * Players can create or join game rooms
+ * Lobby Scene - Game Mode Selection
+ * Players can choose to play solo or in team mode
  */
-
 import * as Phaser from 'phaser';
 
 interface Player {
@@ -15,6 +14,7 @@ export class LobbyScene extends Phaser.Scene {
   private socket?: unknown;
   private rooms: Array<{ name: string; players: number; maxPlayers: number }> = [];
   private selectedRoom?: string;
+  private gameMode?: 'solo' | 'team';
 
   constructor() {
     super({ key: 'LobbyScene' });
@@ -30,16 +30,64 @@ export class LobbyScene extends Phaser.Scene {
     const height = this.cameras.main.height;
 
     // Title
-    this.add.text(width / 2, 50, 'Lead City - Lobby', {
+    this.add.text(width / 2, 50, 'Lead City', {
       font: '32px Arial',
       color: '#ffffff'
     }).setOrigin(0.5);
 
     // Instructions
-    this.add.text(width / 2, 100, 'Escolha uma sala para jogar', {
+    this.add.text(width / 2, 100, 'Escolha o modo de jogo', {
       font: '18px Arial',
       color: '#ffffff'
     }).setOrigin(0.5);
+
+    // Solo Mode Button
+    this.createButton(width / 2, height / 2 - 50, '🏃 Jogar Sozinho', () => {
+      this.gameMode = 'solo';
+      this.startSoloGame();
+    });
+
+    // Team Mode Button  
+    this.createButton(width / 2, height / 2 + 50, '👥 Jogar em Equipe', () => {
+      this.gameMode = 'team';
+      this.showTeamOptions();
+    });
+  }
+
+  private startSoloGame() {
+    // Start game directly in solo mode
+    this.scene.start('GameScene', { 
+      socket: null, // No socket needed for solo
+      roomName: null,
+      players: [this.registry.get('player')],
+      player: this.registry.get('player'),
+      gameMode: 'solo'
+    });
+  }
+
+  private showTeamOptions() {
+    // Clear previous UI
+    this.children.removeAll();
+
+    const width = this.cameras.main.width;
+    const height = this.cameras.main.height;
+
+    // Title
+    this.add.text(width / 2, 50, 'Jogar em Equipe', {
+      font: '32px Arial',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+
+    // Instructions
+    this.add.text(width / 2, 100, 'Escolha um parceiro da sua diretoria ou crie uma sala', {
+      font: '16px Arial',
+      color: '#ffffff'
+    }).setOrigin(0.5);
+
+    // Back button
+    this.createButton(width / 2, height - 50, '← Voltar', () => {
+      this.create(); // Recreate main menu
+    });
 
     // Request rooms from server
     if (this.socket) {
@@ -48,7 +96,7 @@ export class LobbyScene extends Phaser.Scene {
       
       socket.on('rooms-list', (rooms: Array<{ name: string; players: number; maxPlayers: number }>) => {
         this.rooms = rooms;
-        this.displayRooms();
+        this.displayTeamRooms();
       });
 
       socket.on('room-joined', (data: { roomName: string; players: Player[] }) => {
@@ -57,28 +105,32 @@ export class LobbyScene extends Phaser.Scene {
           socket: this.socket,
           roomName: data.roomName,
           players: data.players,
-          player: this.registry.get('player')
+          player: this.registry.get('player'),
+          gameMode: 'team'
         });
       });
 
       socket.on('error', (data: { message: string }) => {
         console.error('Socket error:', data.message);
+        this.showError(data.message);
       });
     }
 
-    // Create default room button
-    this.createButton(width / 2, height - 100, 'Criar Sala "Geral"', () => {
+    // Create room button
+    this.createButton(width / 2, height / 2 + 100, '➕ Criar Nova Sala', () => {
+      const player = this.registry.get('player');
+      const roomName = `Sala de ${player.username}`;
+      
       if (this.socket) {
         (this.socket as any).emit('create-room', {
-          roomName: 'Geral',
-          player: this.registry.get('player')
+          roomName: roomName,
+          player: player
         });
       }
     });
   }
 
-  private displayRooms() {
-    // Clear previous room displays
+  private displayTeamRooms() {
     const width = this.cameras.main.width;
     let y = 150;
 
@@ -104,6 +156,21 @@ export class LobbyScene extends Phaser.Scene {
     });
   }
 
+  private showError(message: string) {
+    const width = this.cameras.main.width;
+    const errorText = this.add.text(width / 2, 500, message, {
+      font: '16px Arial',
+      color: '#ff0000',
+      backgroundColor: '#000000',
+      padding: { x: 8, y: 4 }
+    }).setOrigin(0.5);
+
+    // Remove error after 3 seconds
+    this.time.delayedCall(3000, () => {
+      errorText.destroy();
+    });
+  }
+
   private createButton(x: number, y: number, text: string, onClick: () => void) {
     const button = this.add.rectangle(x, y, 300, 50, 0x6366f1);
     const buttonText = this.add.text(x, y, text, {
@@ -116,7 +183,6 @@ export class LobbyScene extends Phaser.Scene {
     button.on('pointerout', () => button.setFillStyle(0x6366f1));
     button.on('pointerdown', onClick);
 
-    const socket = this.socket as any;
-    return { button, buttonText, socket };
+    return { button, buttonText };
   }
 }
