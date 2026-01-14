@@ -225,6 +225,7 @@ export class GameScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 4,
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 3, fill: true }
+            });
 
     // Leads
     this.leadsText = this.add.text(padding, padding + 30, 'Leads: 0', {
@@ -233,6 +234,7 @@ export class GameScene extends Phaser.Scene {
       stroke: '#000000',
       strokeThickness: 4,
       shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 3, fill: true }
+            });
 
     // Timer
     this.timerText = this.add.text(this.cameras.main.width / 2, padding, `Tempo: ${this.gameTime}s`, {
