@@ -16,7 +16,7 @@ export async function getGoals(userId: string) {
   return data;
 }
 
-export async function upsertGoal(goal: any) {
+export async function upsertGoal(goal: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('goals')
@@ -44,7 +44,7 @@ export async function getKPIs(userId: string, startDate?: string, endDate?: stri
   return data;
 }
 
-export async function upsertKPI(kpi: any) {
+export async function upsertKPI(kpi: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('kpis')
@@ -68,7 +68,7 @@ export async function getCoachingSessions(userId: string) {
   return data;
 }
 
-export async function createCoachingSession(session: any) {
+export async function createCoachingSession(session: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('coaching_sessions')
@@ -80,7 +80,7 @@ export async function createCoachingSession(session: any) {
   return data;
 }
 
-export async function updateCoachingSession(id: string, updates: any) {
+export async function updateCoachingSession(id: string, updates: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('coaching_sessions')
@@ -108,7 +108,7 @@ export async function getActionItems(userId: string, status?: string) {
   return data;
 }
 
-export async function upsertActionItem(item: any) {
+export async function upsertActionItem(item: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('action_items')
@@ -134,7 +134,7 @@ export async function getDISCProfile(userId: string) {
   return data;
 }
 
-export async function upsertDISCProfile(profile: any) {
+export async function upsertDISCProfile(profile: Record<string, unknown>) {
   const supabase = getSupabaseBrowser();
   const { data, error } = await supabase
     .from('disc_profiles')

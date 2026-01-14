@@ -35,7 +35,7 @@ FOCO POR TIPO DE SESSÃO:
 - strategy: Desenvolver estratégias de prospecção, negociação, fechamento
 - action_plan: Criar plano de ação detalhado com atividades diárias/semanais`;
 
-    const chatHistory = messages.map((msg: any) => ({
+    const chatHistory = messages.map((msg: { role: string; content: string }) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }));

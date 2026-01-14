@@ -92,6 +92,7 @@ export function DISCAnalysis({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   async function loadProfile() {

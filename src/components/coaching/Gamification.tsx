@@ -39,6 +39,7 @@ export function Gamification({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   async function loadStats() {
@@ -184,7 +185,7 @@ export function Gamification({ userId }: { userId: string }) {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {ACHIEVEMENTS.map((achievement) => {
             const earned = stats?.achievements?.some(
-              (a: any) => a.badge_type === achievement.id
+              (a: { badge_type: string }) => a.badge_type === achievement.id
             );
             return (
               <div

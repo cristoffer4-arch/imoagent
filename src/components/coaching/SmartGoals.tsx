@@ -43,6 +43,7 @@ export function SmartGoals({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadGoals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   async function loadGoals() {

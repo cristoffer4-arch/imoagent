@@ -33,6 +33,7 @@ export function ActionPlan({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   async function loadItems() {
@@ -86,7 +87,7 @@ export function ActionPlan({ userId }: { userId: string }) {
   async function generateAutoPlan() {
     setGenerating(true);
     try {
-      const response = await fetch('/api/gemini-coach', {
+      await fetch('/api/gemini-coach', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -102,8 +103,6 @@ export function ActionPlan({ userId }: { userId: string }) {
         }),
       });
 
-      const data = await response.json();
-      
       // Parse the AI response and create action items
       // For now, create sample items based on best practices
       const sampleItems = [

@@ -4,8 +4,6 @@ import { useState, useEffect } from 'react';
 import { getKPIs } from '@/lib/supabase-coaching';
 import { LineChart, Line, PieChart, Pie, BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-const COLORS = ['#10b981', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
-
 export function KPIDashboard({ userId }: { userId: string }) {
   const [period, setPeriod] = useState<'7d' | '30d' | '90d'>('30d');
   const [kpis, setKpis] = useState<any[]>([]);
@@ -13,6 +11,7 @@ export function KPIDashboard({ userId }: { userId: string }) {
 
   useEffect(() => {
     loadKPIs();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, period]);
 
   async function loadKPIs() {
