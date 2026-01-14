@@ -463,8 +463,6 @@ export class GameScene extends Phaser.Scene {
     });
     this.otherPlayers.clear();
   }
-}
-
 
   // Helper method to create clouds
   private addCloud(x: number, y: number) {
@@ -480,3 +478,5 @@ export class GameScene extends Phaser.Scene {
     // Add parallax effect
     cloud.setDepth(-1);
   }
+}
+
