@@ -65,11 +65,20 @@ export class GameScene extends Phaser.Scene {
     const height = this.cameras.main.height;
 
     // Sky background
-    this.add.rectangle(width / 2, height / 2, width, height, 0x87CEEB);
-
+    // Sky background with gradient
+    const graphics = this.add.graphics();
+    graphics.fillGradientStyle(0x87CEEB, 0x87CEEB, 0x4A90E2, 0x2E5C8A, 1);
+    graphics.fillRect(0, 0, width, height);
     // Ground
     const ground = this.add.rectangle(width / 2, height - 25, width, 50, 0x8B4513);
     this.physics.add.existing(ground, true);
+    
+    // Add clouds in background
+    for (let i = 0; i < 8; i++) {
+      const cloudX = Phaser.Math.Between(0, width);
+      const cloudY = Phaser.Math.Between(50, height / 2);
+      this.addCloud(cloudX, cloudY);
+    }
 
     // Buildings background
     this.createBuildings();
@@ -192,8 +201,18 @@ export class GameScene extends Phaser.Scene {
       const buildingWidth = Phaser.Math.Between(60, 120);
       const x = i * 180 + 50;
       
-      this.add.rectangle(x, height - buildingHeight / 2 - 50, buildingWidth, buildingHeight, 0x4a5568, 0.5);
-    }
+      // Create brick-style platform with pattern
+      const colors = [0xD2691E, 0xB8860B, 0xCD853F, 0xA0522D];
+      const platformColor = colors[i % colors.length];
+      this.add.rectangle(x, height - buildingHeight / 2 - 50, buildingWidth, buildingHeight, platformColor, 1);
+      
+      // Add brick pattern
+      const brickGraphics = this.add.graphics();
+      brickGraphics.lineStyle(2, 0x8B4513, 0.5);
+      for (let row = 0; row < 3; row++) {
+        brickGraphics.lineBetween(x - buildingWidth/2, height - buildingHeight / 2 - 50 + (row * buildingHeight/3) - buildingHeight/2, 
+                                  x + buildingWidth/2, height - buildingHeight / 2 - 50 + (row * buildingHeight/3) - buildingHeight/2);
+      }    }
   }
 
   private createHUD() {
@@ -201,19 +220,19 @@ export class GameScene extends Phaser.Scene {
     
     // Score
     this.scoreText = this.add.text(padding, padding, 'Pontos: 0', {
-      font: 'bold 16px Arial',
-      color: '#ffffff',
-      backgroundColor: '#000000',
-      padding: { x: 8, y: 4 }
-    });
+      font: 'bold 20px Arial',
+      color: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 3, fill: true }
 
     // Leads
     this.leadsText = this.add.text(padding, padding + 30, 'Leads: 0', {
-      font: 'bold 16px Arial',
-      color: '#ffffff',
-      backgroundColor: '#000000',
-      padding: { x: 8, y: 4 }
-    });
+      font: 'bold 18px Arial',
+      color: '#00FF7F',
+      stroke: '#000000',
+      strokeThickness: 4,
+      shadow: { offsetX: 2, offsetY: 2, color: '#000000', blur: 3, fill: true }
 
     // Timer
     this.timerText = this.add.text(this.cameras.main.width / 2, padding, `Tempo: ${this.gameTime}s`, {
@@ -443,3 +462,19 @@ export class GameScene extends Phaser.Scene {
     this.otherPlayers.clear();
   }
 }
+
+
+  // Helper method to create clouds
+  private addCloud(x: number, y: number) {
+    const cloud = this.add.graphics();
+    cloud.fillStyle(0xFFFFFF, 0.8);
+    
+    // Draw cloud shape with circles
+    cloud.fillCircle(x, y, 20);
+    cloud.fillCircle(x + 25, y, 25);
+    cloud.fillCircle(x + 50, y, 20);
+    cloud.fillCircle(x + 25, y - 10, 20);
+    
+    // Add parallax effect
+    cloud.setDepth(-1);
+  }
