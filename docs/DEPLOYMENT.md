@@ -32,6 +32,7 @@
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
    SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
    GEMINI_API_KEY=your_gemini_api_key
+   CASAFARI_API_KEY=your_casafari_api_key
    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
    STRIPE_SECRET_KEY=your_stripe_secret_key
    STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
@@ -86,12 +87,15 @@ supabase functions deploy calculate-rankings
 supabase functions deploy lead-scoring
 supabase functions deploy calculate-commission
 supabase functions deploy ai-coaching
+supabase functions deploy ia-busca
+supabase functions deploy ia-orquestradora
 ```
 
 ### 4. Set Function Secrets
 
 ```bash
 supabase secrets set GEMINI_API_KEY=your_key
+supabase secrets set CASAFARI_API_KEY=your_casafari_key
 ```
 
 ### 5. Enable Authentication
