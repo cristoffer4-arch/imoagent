@@ -51,7 +51,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "T3",
-          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-001", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-001" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -103,7 +103,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "V4",
-          sources: [{ portal: "Casafari", listingUrl: "https://casafari.com/mock-002", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "CASAFARI" as const, name: "Casafari", id: "casafari-mock", url: "https://casafari.com/mock-002" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -153,7 +153,7 @@ const generateMockResults = (): SearchResults => ({
         metadata: {
           typology: "T2",
           condition: PropertyCondition.RENOVATED,
-          sources: [{ portal: "OLX", listingUrl: "https://olx.pt/mock-003", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "OLX", id: "olx-mock", url: "https://olx.pt/mock-003" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -203,7 +203,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "T1",
-          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-004", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-004" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -253,7 +253,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "V6",
-          sources: [{ portal: "Casafari", listingUrl: "https://casafari.com/mock-005", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "CASAFARI" as const, name: "Casafari", id: "casafari-mock", url: "https://casafari.com/mock-005" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -304,7 +304,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "T3",
-          sources: [{ portal: "Imovirtual", listingUrl: "https://imovirtual.pt/mock-006", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "Imovirtual", id: "imovirtual-mock", url: "https://imovirtual.pt/mock-006" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -353,7 +353,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "T2",
-          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-007", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-007" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
@@ -403,7 +403,7 @@ const generateMockResults = (): SearchResults => ({
         },
         metadata: {
           typology: "V3",
-          sources: [{ portal: "OLX", listingUrl: "https://olx.pt/mock-008", firstSeen: new Date(), lastSeen: new Date() }],
+          sources: [{ type: "PORTAL" as const, name: "OLX", id: "olx-mock", url: "https://olx.pt/mock-008" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
