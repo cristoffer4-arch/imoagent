@@ -318,8 +318,8 @@ export default function IABuscaPage() {
         {/* Mode Toggle */}
         <div className="mb-6">
           <ModeToggle 
-            currentMode={mode} 
-            onModeChange={handleModeChange} 
+            mode={mode} 
+            onChange={handleModeChange} 
           />
         </div>
 
@@ -330,9 +330,7 @@ export default function IABuscaPage() {
             <div className="sticky top-8">
               <SearchFilters
                 filters={filters}
-                onFiltersChange={handleFiltersChange}
-                onSearch={handleSearch}
-                loading={loading}
+                onChange={handleFiltersChange}
               />
             </div>
           </aside>
@@ -342,7 +340,7 @@ export default function IABuscaPage() {
             {/* Stats */}
             {results && (
               <div className="mb-6">
-                <SearchStats stats={results.stats} mode={mode} />
+                <SearchStats stats={results.stats} />
               </div>
             )}
 
@@ -405,38 +403,13 @@ export default function IABuscaPage() {
 
             {/* Results Grid */}
             {results && !loading && (
-              <>
-                <PropertyGrid 
-                  items={results.items} 
-                  mode={mode}
-                  loading={loading}
-                />
-
-                {/* Load More / Pagination */}
-                {results.page < results.totalPages && (
-                  <div className="mt-8 text-center">
-                    <button
-                      onClick={handleLoadMore}
-                      disabled={loading}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-400 rounded-lg font-medium transition-colors"
-                    >
-                      {loading ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          A carregar...
-                        </>
-                      ) : (
-                        <>
-                          Carregar mais imóveis
-                          <span className="text-xs opacity-80">
-                            (Página {results.page} de {results.totalPages})
-                          </span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                )}
-              </>
+              <PropertyGrid 
+                properties={results.items} 
+                loading={loading}
+                hasMore={results.page < results.totalPages}
+                onLoadMore={handleLoadMore}
+                loadingMore={loading && results.items.length > 0}
+              />
             )}
 
             {/* Empty State */}
