@@ -6,7 +6,12 @@
  */
 
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { PropertyCanonicalModel } from '../models/PropertyCanonicalModel';
+import {
+  PropertyCanonicalModel,
+  PropertyType,
+  TransactionType,
+  DataQuality,
+} from '../models/PropertyCanonicalModel';
 import { validateProperty } from '../models/validators/PropertyValidator';
 
 /**
@@ -515,7 +520,7 @@ export class PropertyRepository {
       id: data.id,
       tenantId: data.tenant_id,
       teamId: data.team_id,
-      type: data.typology || 'OTHER',
+      type: data.typology || PropertyType.OTHER,
       location: {
         coordinates: data.lat && data.lon ? {
           latitude: data.lat,
@@ -532,7 +537,7 @@ export class PropertyRepository {
       price: {
         value: data.price_main || 0,
         currency: 'EUR',
-        transactionType: 'SALE',
+        transactionType: TransactionType.SALE,
         priceRange: data.price_min && data.price_max ? {
           min: data.price_min,
           max: data.price_max,
@@ -552,7 +557,7 @@ export class PropertyRepository {
         firstSeen: new Date(data.first_seen),
         lastSeen: new Date(data.last_seen),
         lastUpdated: new Date(data.updated_at),
-        dataQuality: 'MEDIUM',
+        dataQuality: DataQuality.MEDIUM,
         portalCount: data.portal_count,
       },
       aiScores: {

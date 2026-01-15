@@ -5,7 +5,7 @@
  * e vice-versa, além de normalizar endereços portugueses.
  */
 
-import type { PropertyLocation } from '../PropertyCanonicalModel';
+import type { PropertyLocation } from '../models/PropertyCanonicalModel';
 
 /**
  * Interface para resultado de geocodificação
@@ -41,6 +41,29 @@ export interface ReverseGeocodingResult {
     distrito: string;
     country: string;
   };
+}
+
+/**
+ * Interface para resposta da API de geocodificação (Google Maps format)
+ */
+interface GeocodingAPIResponse {
+  results?: Array<{
+    geometry: {
+      location: { lat: number; lng: number };
+      location_type: string;
+    };
+    formatted_address: string;
+    address_components: AddressComponent[];
+  }>;
+}
+
+/**
+ * Interface para componente de endereço
+ */
+interface AddressComponent {
+  long_name: string;
+  short_name: string;
+  types: string[];
 }
 
 /**
@@ -343,7 +366,7 @@ export class GeocodingService {
    * Parser para resposta de geocodificação
    * Adaptar conforme a API utilizada
    */
-  private static parseGeocodingResponse(data: any): GeocodingResult | null {
+  private static parseGeocodingResponse(data: GeocodingAPIResponse): GeocodingResult | null {
     // Exemplo para Google Maps Geocoding API
     if (!data.results || data.results.length === 0) {
       return null;
@@ -366,7 +389,7 @@ export class GeocodingService {
    * Parser para resposta de geocodificação reversa
    */
   private static parseReverseGeocodingResponse(
-    data: any
+    data: GeocodingAPIResponse
   ): ReverseGeocodingResult | null {
     if (!data.results || data.results.length === 0) {
       return null;
@@ -383,12 +406,20 @@ export class GeocodingService {
   /**
    * Extrai componentes do endereço
    */
-  private static parseAddressComponents(components: any[]): any {
-    const address: any = {
+  private static parseAddressComponents(components: AddressComponent[]): {
+    street?: string;
+    number?: string;
+    postalCode?: string;
+    freguesia?: string;
+    concelho: string;
+    distrito: string;
+    country: string;
+  } {
+    const address = {
       concelho: '',
       distrito: '',
       country: 'Portugal',
-    };
+    } as ReturnType<typeof GeocodingService.parseAddressComponents>;
 
     for (const component of components) {
       const types = component.types;
