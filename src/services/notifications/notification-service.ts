@@ -61,7 +61,7 @@ class NotificationService {
    */
   notifyPropertyMatch(match: PropertyMatch, priority: NotificationPriority = 'medium'): void {
     const notification: Notification = {
-      id: crypto.randomUUID(),
+      id: this.generateId(),
       type: 'property_match',
       priority,
       title: `Novo Match: ${match.property.title}`,
@@ -80,7 +80,7 @@ class NotificationService {
   notifyPriceChange(change: PriceChange, propertyTitle: string, priority: NotificationPriority = 'high'): void {
     const direction = change.priceDirection === 'down' ? 'Desceu' : 'Subiu';
     const notification: Notification = {
-      id: crypto.randomUUID(),
+      id: this.generateId(),
       type: 'price_change',
       priority,
       title: `Preço ${direction}: ${propertyTitle}`,
@@ -98,7 +98,7 @@ class NotificationService {
    */
   notifyNewProperty(property: PropertyMatch['property'], priority: NotificationPriority = 'medium'): void {
     const notification: Notification = {
-      id: crypto.randomUUID(),
+      id: this.generateId(),
       type: 'new_property',
       priority,
       title: 'Novo Imóvel Disponível',
@@ -109,6 +109,17 @@ class NotificationService {
     };
     
     this.emit(notification);
+  }
+
+  /**
+   * Generate unique ID (compatible with both browser and Node)
+   */
+  private generateId(): string {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    // Fallback for test environments
+    return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
   }
 
   /**
