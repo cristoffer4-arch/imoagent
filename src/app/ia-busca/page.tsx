@@ -15,7 +15,7 @@ import {
   SearchSortBy, 
   SearchResults 
 } from "@/types/search";
-import { PropertyType, TransactionType } from "@/models/PropertyCanonicalModel";
+import { PropertyType, TransactionType, PropertyCondition, DataQuality, PropertyCanonicalModel } from "@/models/PropertyCanonicalModel";
 
 // Mock data for development
 const generateMockResults = (): SearchResults => ({
@@ -23,21 +23,46 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-001",
+        tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
-        transaction: TransactionType.SALE,
-        title: "T3 Moderno em Campo de Ourique",
-        description: "Apartamento T3 totalmente remodelado com varanda, cozinha equipada e excelente exposição solar.",
-        price: 450000,
-        area: 95,
         location: {
           coordinates: { latitude: 38.7196, longitude: -9.1622 },
-          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Campo de Ourique" }
+          address: { 
+            concelho: "Lisboa", 
+            distrito: "Lisboa", 
+            freguesia: "Campo de Ourique",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 3, bathrooms: 2, typology: "T3", hasElevator: true, hasBalcony: true },
+        price: {
+          value: 450000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 4737
+        },
+        characteristics: {
+          totalArea: 95,
+          bedrooms: 3,
+          bathrooms: 2,
+          features: {
+            elevator: true,
+            balcony: true
+          }
+        },
+        metadata: {
+          typology: "T3",
+          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-001", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "HIGH" as DataQuality
+        },
+        title: "T3 Moderno em Campo de Ourique",
+        description: "Apartamento T3 totalmente remodelado com varanda, cozinha equipada e excelente exposição solar.",
         images: [],
-        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-001" },
-        dataQuality: "HIGH" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 92,
       matchReasons: ["Recém-publicado (2 dias)", "Múltiplos portais (3)", "Zona premium"],
       portalsFound: ["Idealista", "Imovirtual", "OLX"],
@@ -47,21 +72,49 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-002",
+        tenantId: "mock-tenant",
         type: PropertyType.HOUSE,
-        transaction: TransactionType.SALE,
-        title: "Moradia V4 com Jardim - Cascais",
-        description: "Moradia isolada com 4 quartos, jardim privado, garagem para 2 carros e piscina.",
-        price: 850000,
-        area: 220,
         location: {
           coordinates: { latitude: 38.6973, longitude: -9.4233 },
-          address: { distrito: "Lisboa", concelho: "Cascais", freguesia: "Cascais e Estoril" }
+          address: { 
+            concelho: "Cascais", 
+            distrito: "Lisboa", 
+            freguesia: "Cascais e Estoril",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 4, bathrooms: 3, typology: "V4", hasGarage: true, hasGarden: true, hasPool: true },
+        price: {
+          value: 850000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 3864
+        },
+        characteristics: {
+          totalArea: 220,
+          landArea: 500,
+          bedrooms: 4,
+          bathrooms: 3,
+          parkingSpaces: 2,
+          features: {
+            garage: true,
+            garden: true,
+            pool: true
+          }
+        },
+        metadata: {
+          typology: "V4",
+          sources: [{ portal: "Casafari", listingUrl: "https://casafari.com/mock-002", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "HIGH" as DataQuality
+        },
+        title: "Moradia V4 com Jardim - Cascais",
+        description: "Moradia isolada com 4 quartos, jardim privado, garagem para 2 carros e piscina.",
         images: [],
-        sourceInfo: { portal: "Casafari", listingUrl: "https://casafari.com/mock-002" },
-        dataQuality: "HIGH" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 88,
       matchReasons: ["Zona de alta procura", "Características premium", "Preço competitivo"],
       portalsFound: ["Casafari", "Idealista"],
@@ -71,21 +124,47 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-003",
+        tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
-        transaction: TransactionType.SALE,
-        title: "T2 Renovado - Baixa do Porto",
-        description: "Apartamento T2 no centro histórico do Porto, totalmente renovado, próximo à Ribeira.",
-        price: 280000,
-        area: 75,
         location: {
           coordinates: { latitude: 41.1422, longitude: -8.6115 },
-          address: { distrito: "Porto", concelho: "Porto", freguesia: "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória" }
+          address: { 
+            concelho: "Porto", 
+            distrito: "Porto", 
+            freguesia: "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 2, bathrooms: 1, typology: "T2", hasElevator: false, hasBalcony: false },
+        price: {
+          value: 280000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 3733
+        },
+        characteristics: {
+          totalArea: 75,
+          bedrooms: 2,
+          bathrooms: 1,
+          features: {
+            elevator: false,
+            balcony: false
+          }
+        },
+        metadata: {
+          typology: "T2",
+          condition: PropertyCondition.RENOVATED,
+          sources: [{ portal: "OLX", listingUrl: "https://olx.pt/mock-003", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "MEDIUM" as DataQuality
+        },
+        title: "T2 Renovado - Baixa do Porto",
+        description: "Apartamento T2 no centro histórico do Porto, totalmente renovado, próximo à Ribeira.",
         images: [],
-        sourceInfo: { portal: "OLX", listingUrl: "https://olx.pt/mock-003" },
-        dataQuality: "MEDIUM" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 85,
       matchReasons: ["Centro histórico", "Recém-renovado", "Boa relação preço/m²"],
       portalsFound: ["OLX", "Imovirtual", "Facebook"],
@@ -95,21 +174,47 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-004",
+        tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
-        transaction: TransactionType.SALE,
-        title: "T1 com Vista Rio - Parque das Nações",
-        description: "T1 moderno com vista para o Tejo, condomínio fechado com piscina e ginásio.",
-        price: 320000,
-        area: 55,
         location: {
           coordinates: { latitude: 38.7686, longitude: -9.0947 },
-          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Parque das Nações" }
+          address: { 
+            concelho: "Lisboa", 
+            distrito: "Lisboa", 
+            freguesia: "Parque das Nações",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 1, bathrooms: 1, typology: "T1", hasElevator: true, hasBalcony: true, hasPool: true },
+        price: {
+          value: 320000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 5818
+        },
+        characteristics: {
+          totalArea: 55,
+          bedrooms: 1,
+          bathrooms: 1,
+          features: {
+            elevator: true,
+            balcony: true,
+            pool: true
+          }
+        },
+        metadata: {
+          typology: "T1",
+          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-004", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "HIGH" as DataQuality
+        },
+        title: "T1 com Vista Rio - Parque das Nações",
+        description: "T1 moderno com vista para o Tejo, condomínio fechado com piscina e ginásio.",
         images: [],
-        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-004" },
-        dataQuality: "HIGH" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 78,
       matchReasons: ["Condomínio de luxo", "Vista panorâmica", "Zona moderna"],
       portalsFound: ["Idealista", "Casafari"],
@@ -119,21 +224,47 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-005",
+        tenantId: "mock-tenant",
         type: PropertyType.VILLA,
-        transaction: TransactionType.SALE,
-        title: "Quinta com 5000m² - Sintra",
-        description: "Quinta histórica em Sintra com casa principal restaurada, anexo independente e terreno amplo.",
-        price: 1500000,
-        area: 350,
         location: {
           coordinates: { latitude: 38.8029, longitude: -9.3817 },
-          address: { distrito: "Lisboa", concelho: "Sintra", freguesia: "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)" }
+          address: { 
+            concelho: "Sintra", 
+            distrito: "Lisboa", 
+            freguesia: "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 6, bathrooms: 4, typology: "V6", hasGarage: true, hasGarden: true, landArea: 5000 },
+        price: {
+          value: 1500000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 4286
+        },
+        characteristics: {
+          totalArea: 350,
+          landArea: 5000,
+          bedrooms: 6,
+          bathrooms: 4,
+          features: {
+            garage: true,
+            garden: true
+          }
+        },
+        metadata: {
+          typology: "V6",
+          sources: [{ portal: "Casafari", listingUrl: "https://casafari.com/mock-005", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "HIGH" as DataQuality
+        },
+        title: "Quinta com 5000m² - Sintra",
+        description: "Quinta histórica em Sintra com casa principal restaurada, anexo independente e terreno amplo.",
         images: [],
-        sourceInfo: { portal: "Casafari", listingUrl: "https://casafari.com/mock-005" },
-        dataQuality: "HIGH" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 75,
       matchReasons: ["Propriedade única", "Valor histórico", "Grande potencial"],
       portalsFound: ["Casafari", "BPI"],
@@ -143,21 +274,48 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-006",
+        tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
-        transaction: TransactionType.SALE,
-        title: "T3 Duplex - Braga Centro",
-        description: "Apartamento T3 duplex em prédio recente, garagem box, terraço privativo.",
-        price: 195000,
-        area: 120,
         location: {
           coordinates: { latitude: 41.5518, longitude: -8.4229 },
-          address: { distrito: "Braga", concelho: "Braga", freguesia: "Braga (São José de São Lázaro e São João do Souto)" }
+          address: { 
+            concelho: "Braga", 
+            distrito: "Braga", 
+            freguesia: "Braga (São José de São Lázaro e São João do Souto)",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 3, bathrooms: 2, typology: "T3", hasElevator: true, hasGarage: true, hasTerrace: true },
+        price: {
+          value: 195000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 1625
+        },
+        characteristics: {
+          totalArea: 120,
+          bedrooms: 3,
+          bathrooms: 2,
+          parkingSpaces: 1,
+          features: {
+            elevator: true,
+            garage: true,
+            terrace: true
+          }
+        },
+        metadata: {
+          typology: "T3",
+          sources: [{ portal: "Imovirtual", listingUrl: "https://imovirtual.pt/mock-006", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "MEDIUM" as DataQuality
+        },
+        title: "T3 Duplex - Braga Centro",
+        description: "Apartamento T3 duplex em prédio recente, garagem box, terraço privativo.",
         images: [],
-        sourceInfo: { portal: "Imovirtual", listingUrl: "https://imovirtual.pt/mock-006" },
-        dataQuality: "MEDIUM" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 72,
       matchReasons: ["Centro de Braga", "Duplex diferenciado", "Preço atrativo"],
       portalsFound: ["Imovirtual", "OLX"],
@@ -167,21 +325,46 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-007",
+        tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
-        transaction: TransactionType.SALE,
-        title: "T2 Avenida da Liberdade - Lisboa",
-        description: "Apartamento clássico numa das avenidas mais emblemáticas de Lisboa, com tetos altos e varanda.",
-        price: 620000,
-        area: 90,
         location: {
           coordinates: { latitude: 38.7205, longitude: -9.1422 },
-          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Santo António" }
+          address: { 
+            concelho: "Lisboa", 
+            distrito: "Lisboa", 
+            freguesia: "Santo António",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 2, bathrooms: 2, typology: "T2", hasElevator: true, hasBalcony: true },
+        price: {
+          value: 620000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 6889
+        },
+        characteristics: {
+          totalArea: 90,
+          bedrooms: 2,
+          bathrooms: 2,
+          features: {
+            elevator: true,
+            balcony: true
+          }
+        },
+        metadata: {
+          typology: "T2",
+          sources: [{ portal: "Idealista", listingUrl: "https://idealista.pt/mock-007", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "HIGH" as DataQuality
+        },
+        title: "T2 Avenida da Liberdade - Lisboa",
+        description: "Apartamento clássico numa das avenidas mais emblemáticas de Lisboa, com tetos altos e varanda.",
         images: [],
-        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-007" },
-        dataQuality: "HIGH" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 68,
       matchReasons: ["Localização premium", "Edifício clássico", "Alta valorização"],
       portalsFound: ["Idealista", "Casafari", "Imovirtual"],
@@ -191,21 +374,47 @@ const generateMockResults = (): SearchResults => ({
     {
       property: {
         id: "prop-008",
+        tenantId: "mock-tenant",
         type: PropertyType.HOUSE,
-        transaction: TransactionType.SALE,
-        title: "Moradia V3 Geminada - Matosinhos",
-        description: "Moradia geminada T3 em excelente estado, próximo à praia, com garagem e pequeno jardim.",
-        price: 380000,
-        area: 140,
         location: {
           coordinates: { latitude: 41.1820, longitude: -8.6896 },
-          address: { distrito: "Porto", concelho: "Matosinhos", freguesia: "Matosinhos e Leça da Palmeira" }
+          address: { 
+            concelho: "Matosinhos", 
+            distrito: "Porto", 
+            freguesia: "Matosinhos e Leça da Palmeira",
+            country: "Portugal"
+          }
         },
-        features: { bedrooms: 3, bathrooms: 2, typology: "V3", hasGarage: true, hasGarden: true },
+        price: {
+          value: 380000,
+          currency: "EUR",
+          transactionType: TransactionType.SALE,
+          pricePerM2: 2714
+        },
+        characteristics: {
+          totalArea: 140,
+          bedrooms: 3,
+          bathrooms: 2,
+          parkingSpaces: 1,
+          features: {
+            garage: true,
+            garden: true
+          }
+        },
+        metadata: {
+          typology: "V3",
+          sources: [{ portal: "OLX", listingUrl: "https://olx.pt/mock-008", firstSeen: new Date(), lastSeen: new Date() }],
+          firstSeen: new Date(),
+          lastSeen: new Date(),
+          lastUpdated: new Date(),
+          dataQuality: "MEDIUM" as DataQuality
+        },
+        title: "Moradia V3 Geminada - Matosinhos",
+        description: "Moradia geminada T3 em excelente estado, próximo à praia, com garagem e pequeno jardim.",
         images: [],
-        sourceInfo: { portal: "OLX", listingUrl: "https://olx.pt/mock-008" },
-        dataQuality: "MEDIUM" as const
-      },
+        createdAt: new Date(),
+        updatedAt: new Date()
+      } as PropertyCanonicalModel,
       score: 65,
       matchReasons: ["Próximo à praia", "Zona familiar", "Bom estado conservação"],
       portalsFound: ["OLX", "Imovirtual"],
