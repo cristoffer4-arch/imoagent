@@ -44,8 +44,7 @@ export default function Dashboard() {
       icon: TrendingUp,
       color: 'bg-green-500',
       active: true,
-      route: '/aplicativo/ia-anuncios-idealista',
-    },
+      route: '/ia-anuncios-idealista',    },
     {
       name: 'Legal',
       description: 'Análise de contratos',
