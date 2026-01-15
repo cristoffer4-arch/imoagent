@@ -2,6 +2,20 @@ type BuscaPayload = {
   query?: string;
   portals?: string[];
   transform?: boolean; // Se true, retorna dados transformados no modelo canônico
+  casafari?: {
+    enabled?: boolean;
+    filters?: {
+      municipality?: string;
+      district?: string;
+      minPrice?: number;
+      maxPrice?: number;
+      propertyType?: string[];
+      transactionType?: 'sale' | 'rent';
+      minBedrooms?: number;
+      page?: number;
+      limit?: number;
+    };
+  };
 };
 
 export async function handler(request: Request): Promise<Response> {
@@ -18,6 +32,23 @@ export async function handler(request: Request): Promise<Response> {
     community_validations: 3,
     geolocation: true,
     query: payload.query ?? "all",
+    casafari: {
+      enabled: payload.casafari?.enabled ?? true,
+      integrated: true,
+      apiEndpoint: "/api/casafari",
+      service: "CasafariService",
+      methods: ["listProperties", "getPropertyDetails", "searchProperties"],
+      features: [
+        "API key authentication",
+        "In-memory caching (5 min TTL)",
+        "Automatic transformation to PropertyCanonicalModel",
+        "Support for advanced filters (location, price, area, bedrooms)",
+        "Pagination support",
+        "Error handling with CasafariApiError",
+      ],
+      documentation: "https://docs.api.casafari.com",
+      filters: payload.casafari?.filters,
+    },
     canonicalModel: {
       enabled: true,
       transformers: ["casafari", "crm"],
@@ -42,7 +73,7 @@ export async function handler(request: Request): Promise<Response> {
         "venda_score",
       ],
     },
-    note: "Canonical model implementation complete. Use PropertyRepository for CRUD operations.",
+    note: "Canonical model implementation complete. CasafariService integrated. Use PropertyRepository for CRUD operations.",
   };
 
   return new Response(JSON.stringify(result), {
