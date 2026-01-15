@@ -350,11 +350,9 @@ async function performMaintenance() {
   const errors = logger.getLogs(LogLevel.ERROR);
   console.log(`❌ Total de erros registrados: ${errors.length}`);
   
-  // 5. Verificar idade dos items na fila
-  const oldestPending = Math.min(...crmService
-    .getQueueStats()
-    // Aqui você poderia implementar lógica para verificar items mais antigos
-  );
+  // 5. Verificar estatísticas da fila
+  const queueStats = crmService.getQueueStats();
+  console.log('Estatísticas da fila:', queueStats);
 
   console.log('✅ Manutenção concluída');
 }
@@ -403,7 +401,5 @@ export async function runExamples() {
   }
 }
 
-// Executar se for script standalone
-if (require.main === module) {
-  runExamples();
-}
+// Note: Remove this CommonJS check if using ES modules
+// To run examples, import and call runExamples() directly

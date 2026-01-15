@@ -14,7 +14,7 @@ export class SyncQueue {
    * Add item to sync queue
    */
   enqueue(item: Omit<SyncQueueItem, 'id' | 'status' | 'retry_count' | 'created_at' | 'updated_at'>): string {
-    const id = `sync_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const id = `sync_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
     
     const queueItem: SyncQueueItem = {
       id,
