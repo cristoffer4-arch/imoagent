@@ -29,8 +29,7 @@ export default function Dashboard() {
       icon: Target,
       color: 'bg-purple-500',
       active: true,
-      route: '/aplicativo/ia-coaching',
-    },
+      route: '/ia-coaching',    },
     {
       name: 'Gamificação',
       description: 'Rankings e conquistas',
