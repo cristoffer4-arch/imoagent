@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { iaAnunciosIdealista } from "@/lib/gemini";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 
 type PortalKey =
   | "idealista"
@@ -173,6 +175,10 @@ const emptyOutputs = (): Record<PortalKey, PortalOutput> => ({
 const uid = () => crypto.randomUUID?.() ?? Math.random().toString(36).slice(2);
 
 export default function IAAnunciosIdealistaPage() {
+  const router = useRouter();
+  const [authStatus, setAuthStatus] = useState<"checking" | "authenticated" | "unauthenticated">(
+    "checking",
+  );
   const [step, setStep] = useState<number>(1);
   const [form, setForm] = useState<PropertyForm>(defaultForm);
   const [aiConfig, setAIConfig] = useState<AIConfig>(defaultAI);
@@ -185,6 +191,56 @@ export default function IAAnunciosIdealistaPage() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const activePortals = useMemo(() => aiConfig.portais, [aiConfig.portais]);
+
+  useEffect(() => {
+    const supabase = createSupabaseClient();
+    let isMounted = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data, error }) => {
+        if (!isMounted) return;
+        if (error || !data?.session) {
+          setAuthStatus("unauthenticated");
+          router.push("/login");
+          return;
+        }
+        setAuthStatus("authenticated");
+      })
+      .catch(() => {
+        if (!isMounted) return;
+        setAuthStatus("unauthenticated");
+        router.push("/login");
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [router]);
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black text-slate-50">
+        <div className="mx-auto max-w-4xl px-6 py-16 text-center">
+          <p className="text-lg text-slate-200">Precisa de iniciar sessão para usar este módulo.</p>
+          <Link
+            href="/login"
+            className="mt-6 inline-flex items-center justify-center rounded-xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-emerald-500/30 hover:bg-emerald-400"
+          >
+            Ir para login
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (authStatus === "checking") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black text-slate-50">
+        <div className="mx-auto max-w-4xl px-6 py-16 text-center text-slate-200">A validar sessão...</div>
+      </div>
+    );
+  }
 
   const handleInput = useCallback(
     <K extends keyof PropertyForm>(field: K, value: PropertyForm[K]) => {
