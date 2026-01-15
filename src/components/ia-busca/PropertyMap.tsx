@@ -207,8 +207,12 @@ export function PropertyMap({
           spiderfyOnMaxZoom={true}
           showCoverageOnHover={false}
           zoomToBoundsOnClick={true}
+          // Note: iconCreateFunction types are not exported by react-leaflet-cluster library
+          // Using 'any' here is the recommended approach per library documentation
+          // See: https://github.com/akursat/react-leaflet-cluster
           iconCreateFunction={(cluster: any) => {
             const count = cluster.getChildCount();
+            // Calculate average score from all markers in this cluster
             const avgScore = Math.round(
               cluster.getAllChildMarkers().reduce((sum: number, marker: any) => {
                 return sum + (marker.options.score || 0);
@@ -257,8 +261,10 @@ export function PropertyMap({
                     }
                   },
                 }}
-                // Note: Leaflet MarkerClusterGroup accesses marker.options to calculate cluster averages
-                // This custom score property is used by the iconCreateFunction callback
+                // Note: React Leaflet's Marker component doesn't officially support custom props
+                // but Leaflet's MarkerClusterGroup accesses marker.options to calculate cluster averages.
+                // This is the recommended pattern per react-leaflet-cluster documentation.
+                // The 'as any' assertion is necessary because the Marker's prop types are sealed.
                 {...({ score } as any)}
               >
                 <Popup
