@@ -1,45 +1,138 @@
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL =
-  process.env.GEMINI_MODEL ?? "models/gemini-1.5-flash-latest";
+import { getSupabaseBrowser } from "@/lib/supabase/client";
 
-async function callGemini(prompt: string) {
-  if (!GEMINI_API_KEY) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("GEMINI_API_KEY ausente em produção.");
-    }
-    return {
-      ok: true,
+type PortalKey =
+  | "idealista"
+  | "olx"
+  | "imovirtual"
+  | "casaSapo"
+  | "bpi"
+  | "facebook";
+
+type PortalOutput = {
+  title: string;
+  description: string;
+  highlights: string[];
+  checklist: string[];
+  cta: string;
+  hashtags: string[];
+  mock?: boolean;
+};
+
+type GenerateAdsResponse = {
+  ok: boolean;
+  text?: string;
+  message?: string;
+  status?: number;
+  mock?: boolean;
+};
+
+const isDev = process.env.NODE_ENV !== "production";
+
+const mockPortalsJson = (prompt: string) => {
+  const portals: PortalKey[] = [
+    "idealista",
+    "olx",
+    "imovirtual",
+    "casaSapo",
+    "bpi",
+    "facebook",
+  ];
+  const baseDescription = prompt.slice(0, 400) || "Anúncio IA demo";
+  const payload = portals.reduce((acc, portal) => {
+    acc[portal] = {
+      title: `Mock ${portal} — IA Imoagent`,
+      description: `${baseDescription}. (Mock de desenvolvimento)`,
+      highlights: [
+        "Destaque 1",
+        "Destaque 2",
+        "Destaque 3",
+        "Destaque 4",
+        "Destaque 5",
+      ],
+      checklist: [
+        "Classe energética visível",
+        "Preço coerente",
+        "Localização sem PII",
+        "Fotos 4:3 legendadas",
+        "CTA visível",
+      ],
+      cta: "Agende visita esta semana",
+      hashtags: ["#imoagent", "#mock", "#anuncio", "#portugal"],
       mock: true,
-      prompt,
-      message:
-        "GEMINI_API_KEY ausente - resposta simulada para desenvolvimento offline.",
     };
-  }
+    return acc;
+  }, {} as Record<PortalKey, PortalOutput>);
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }], role: "user" }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 512 },
-      }),
-    },
-  );
+  return JSON.stringify(payload);
+};
 
-  if (!response.ok) {
-    return { ok: false, status: response.status, statusText: response.statusText };
-  }
-
-  const data = (await response.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-
+// Generic mock that keeps interface compatibility for legacy calls
+async function callGemini(prompt: string): Promise<GenerateAdsResponse> {
   return {
     ok: true,
-    text: data.candidates?.[0]?.content?.parts?.[0]?.text ?? "",
+    mock: true,
+    text: `Mock Gemini response (edge disabled): ${prompt}`,
+    message: "Gemini direto desativado; usando mock local.",
   };
+}
+
+async function callGenerateAds(prompt: string): Promise<GenerateAdsResponse> {
+  // Dev fallback when running without Supabase or auth context
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+  if (isDev && (!supabaseUrl || !supabaseKey)) {
+    return { ok: true, mock: true, text: mockPortalsJson(prompt) };
+  }
+
+  try {
+    const supabase = getSupabaseBrowser();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError || !sessionData?.session?.access_token) {
+      if (isDev) {
+        return { ok: true, mock: true, text: mockPortalsJson(prompt) };
+      }
+      return { ok: false, status: 401, message: "Utilizador não autenticado." };
+    }
+
+    const body = {
+      propertyData: {
+        title: prompt.slice(0, 80) || "Anúncio IA Imoagent",
+        description: prompt,
+      },
+      strategy: {
+        tone: "Confiante",
+        persona: "Lead digital",
+        cta: "Agende visita esta semana",
+        compliance: true,
+        variations: 3,
+      },
+      portals: ["idealista", "olx", "imovirtual", "casaSapo", "bpi", "facebook"],
+    };
+
+    const { data, error } = await supabase.functions.invoke("generate-ads", {
+      body,
+    });
+
+    if (error) {
+      if (isDev) {
+        return { ok: true, mock: true, text: mockPortalsJson(prompt) };
+      }
+      return { ok: false, status: 500, message: error.message };
+    }
+
+    const portalsJson = JSON.stringify((data as { portals?: unknown }).portals ?? {});
+    return {
+      ok: true,
+      text: portalsJson,
+      mock: Boolean((data as { mock?: boolean }).mock),
+    };
+  } catch (error) {
+    if (isDev) {
+      return { ok: true, mock: true, text: mockPortalsJson(prompt) };
+    }
+    return { ok: false, status: 500, message: (error as Error).message };
+  }
 }
 
 export const iaBusca = (query: string) =>
@@ -57,10 +150,7 @@ export const iaGamificacao = (contexto: string) =>
     `Sugira ranking, feed social, competições, mini-games (puzzle, tabuleiro, arcade, quiz) e badges. Contexto: ${contexto}`,
   );
 
-export const iaAnunciosIdealista = (imovel: string) =>
-  callGemini(
-    `Gere anúncio Idealista otimizado com variantes criativas, checklist de conformidade e CTA. Imóvel: ${imovel}`,
-  );
+export const iaAnunciosIdealista = (imovel: string) => callGenerateAds(imovel);
 
 export const iaAssistenteLegal = (contrato: string) =>
   callGemini(
