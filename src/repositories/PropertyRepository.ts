@@ -260,6 +260,11 @@ export class PropertyRepository {
 
   /**
    * Busca propriedades próximas (busca geográfica)
+   * 
+   * NOTA: Esta é uma implementação simplificada para desenvolvimento.
+   * Em produção, recomenda-se usar PostGIS ST_DWithin ou similar para
+   * busca espacial eficiente diretamente no banco de dados, evitando
+   * carregar propriedades em memória.
    */
   async searchNearby(
     latitude: number,

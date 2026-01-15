@@ -82,11 +82,16 @@ export class GeocodingService {
 
   /**
    * Converte um endereço em coordenadas geográficas
+   * 
+   * NOTA: Retorna mock data quando credenciais da API não estão configuradas.
+   * Em produção, configure GEOCODING_API_URL e GEOCODING_API_KEY para usar
+   * geocoding real, ou lance erro se as credenciais são obrigatórias.
    */
   static async geocode(address: string): Promise<GeocodingResult | null> {
     // Implementação mock para desenvolvimento
     // Em produção, substituir por chamada real à API
     if (!this.BASE_URL || !this.API_KEY) {
+      console.warn('[GeocodingService] Using mock geocoding - configure GEOCODING_API_URL and GEOCODING_API_KEY for production');
       return this.mockGeocode(address);
     }
 
@@ -110,6 +115,8 @@ export class GeocodingService {
 
   /**
    * Converte coordenadas em endereço
+   * 
+   * NOTA: Retorna mock data quando credenciais da API não estão configuradas.
    */
   static async reverseGeocode(
     latitude: number,
@@ -117,6 +124,7 @@ export class GeocodingService {
   ): Promise<ReverseGeocodingResult | null> {
     // Implementação mock para desenvolvimento
     if (!this.BASE_URL || !this.API_KEY) {
+      console.warn('[GeocodingService] Using mock reverse geocoding - configure GEOCODING_API_URL and GEOCODING_API_KEY for production');
       return this.mockReverseGeocode(latitude, longitude);
     }
 

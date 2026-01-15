@@ -234,6 +234,9 @@ export class PropertyCanonicalModel {
 
   /**
    * Gera um ID único para a propriedade
+   * 
+   * NOTA: Em produção, considere usar crypto.randomUUID() ou biblioteca
+   * 'uuid' para garantias mais fortes de unicidade em cenários de alta frequência.
    */
   private generateId(): string {
     return `prop_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
