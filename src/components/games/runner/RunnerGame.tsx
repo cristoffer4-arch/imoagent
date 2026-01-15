@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { MobileGamepad, type GamepadButton } from '../MobileGamepad';
 
 type RunnerGameProps = {
   onGameOver: (score: number, distance: number) => void;
@@ -226,8 +227,19 @@ export function RunnerGame({ onGameOver }: RunnerGameProps) {
     handleJump();
   };
 
+  // Mobile gamepad buttons for Caça Leads
+  const gamepadButtons: GamepadButton[] = [
+    {
+      id: 'jump',
+      label: '↑',
+      icon: '⬆️',
+      position: 'right',
+      onPress: handleJump,
+    },
+  ];
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 relative">
       <div className="text-center">
         <h3 className="text-xl font-bold text-gray-900 mb-2">🎮 Caça Leads</h3>
         <p className="text-sm text-gray-600">Clique ou pressione ↑ para pular</p>
@@ -250,6 +262,8 @@ export function RunnerGame({ onGameOver }: RunnerGameProps) {
           <div>🚧 Obstáculo: Game Over</div>
         </div>
       </div>
+
+      <MobileGamepad buttons={gamepadButtons} />
     </div>
   );
 }

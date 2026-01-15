@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import socketIOClient from 'socket.io-client';
 import { createClient } from '@/lib/supabase/client';
+import { MobileGamepad, type GamepadButton } from '../MobileGamepad';
 
 export function LeadCityGame() {
   // Note: Using 'any' for Phaser.Game and Socket types to avoid complex type conflicts
@@ -13,6 +14,60 @@ export function LeadCityGame() {
   const [player, setPlayer] = useState<{ id: string; username: string; avatar: string } | null>(null);
   const [result, setResult] = useState<{ score: number; leads: number; distance: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Mobile controls state - track which keys are pressed
+  const controlsRef = useRef({
+    left: false,
+    right: false,
+    jump: false,
+    action: false,
+  });
+
+  // Simulate keyboard input for Phaser game
+  const simulateKeyPress = useCallback((key: string, isDown: boolean) => {
+    if (!gameRef.current) return;
+    
+    const scene = gameRef.current.scene.scenes[0];
+    if (!scene) return;
+
+    // Update Phaser input state
+    const keyboard = scene.input.keyboard;
+    if (!keyboard) return;
+
+    let keyCode: number;
+    switch (key) {
+      case 'left':
+        keyCode = 37; // ArrowLeft
+        break;
+      case 'right':
+        keyCode = 39; // ArrowRight
+        break;
+      case 'jump':
+        keyCode = 32; // Space
+        break;
+      case 'action':
+        keyCode = 69; // E key for action/interact
+        break;
+      default:
+        return;
+    }
+
+    const keyObj = keyboard.keys.find((k: any) => k.keyCode === keyCode);
+    if (keyObj) {
+      keyObj.isDown = isDown;
+      keyObj.isUp = !isDown;
+    }
+  }, []);
+
+  const handleControlPress = useCallback((control: 'left' | 'right' | 'jump' | 'action') => {
+    controlsRef.current[control] = true;
+    simulateKeyPress(control, true);
+  }, [simulateKeyPress]);
+
+  const handleControlRelease = useCallback((control: 'left' | 'right' | 'jump' | 'action') => {
+    controlsRef.current[control] = false;
+    simulateKeyPress(control, false);
+  }, [simulateKeyPress]);
 
   useEffect(() => {
     // Initialize Supabase client and get user
@@ -226,9 +281,46 @@ const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:1000
         )}
 
         {gameState === 'playing' && (
-          <div className="rounded-3xl bg-white/80 shadow-lg ring-1 ring-pink-100/70 p-4 backdrop-blur-sm">
-            <div id="phaser-game" className="rounded-2xl overflow-hidden" />
-          </div>
+          <>
+            <div className="rounded-3xl bg-white/80 shadow-lg ring-1 ring-pink-100/70 p-4 backdrop-blur-sm">
+              <div id="phaser-game" className="rounded-2xl overflow-hidden" />
+            </div>
+            
+            <MobileGamepad buttons={[
+              {
+                id: 'left',
+                label: '←',
+                icon: '⬅️',
+                position: 'left',
+                onPress: () => handleControlPress('left'),
+                onRelease: () => handleControlRelease('left'),
+              },
+              {
+                id: 'right',
+                label: '→',
+                icon: '➡️',
+                position: 'left',
+                onPress: () => handleControlPress('right'),
+                onRelease: () => handleControlRelease('right'),
+              },
+              {
+                id: 'jump',
+                label: '↑',
+                icon: '⬆️',
+                position: 'right',
+                onPress: () => handleControlPress('jump'),
+                onRelease: () => handleControlRelease('jump'),
+              },
+              {
+                id: 'action',
+                label: 'E',
+                icon: '🔄',
+                position: 'right',
+                onPress: () => handleControlPress('action'),
+                onRelease: () => handleControlRelease('action'),
+              },
+            ]} />
+          </>
         )}
 
         {gameState === 'finished' && result && (
