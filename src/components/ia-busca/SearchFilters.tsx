@@ -232,26 +232,26 @@ export function SearchFilters({ filters, onChange }: SearchFiltersProps) {
       <FilterSection
         title="Tipologia"
         icon={<Home className="w-4 h-4" />}
-        expanded={expandedSections.has("tipology")}
-        onToggle={() => toggleSection("tipology")}
+        expanded={expandedSections.has("typology")}
+        onToggle={() => toggleSection("typology")}
       >
         <div className="flex flex-wrap gap-2">
-          {["T0", "T1", "T2", "T3", "T4", "T5+"].map((tipology) => (
+          {["T0", "T1", "T2", "T3", "T4", "T5+"].map((typology) => (
             <label
-              key={tipology}
+              key={typology}
               className="flex items-center gap-2 px-4 py-2 bg-slate-800 rounded-lg cursor-pointer hover:bg-slate-750 transition-colors"
             >
               <input
                 type="checkbox"
-                checked={filters.typology?.includes(tipology) || false}
+                checked={filters.typology?.includes(typology) || false}
                 onChange={() =>
                   updateFilters({
-                    typology: toggleArrayValue(filters.typology, tipology),
+                    typology: toggleArrayValue(filters.typology, typology),
                   })
                 }
                 className="w-4 h-4 rounded border-slate-600 bg-slate-700 text-emerald-500 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-0"
               />
-              <span className="text-sm font-medium text-slate-300">{tipology}</span>
+              <span className="text-sm font-medium text-slate-300">{typology}</span>
             </label>
           ))}
         </div>

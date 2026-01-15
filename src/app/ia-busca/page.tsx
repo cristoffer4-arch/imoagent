@@ -15,7 +15,13 @@ import {
   SearchSortBy, 
   SearchResults 
 } from "@/types/search";
-import { PropertyType, TransactionType, PropertyCondition, DataQuality, PropertyCanonicalModel } from "@/models/PropertyCanonicalModel";
+import {
+  PropertyType,
+  TransactionType,
+  PropertyCondition,
+  DataQuality,
+  PropertyCanonicalModel,
+} from "@/models/PropertyCanonicalModel";
 
 // Mock data for development
 const generateMockResults = (): SearchResults => ({

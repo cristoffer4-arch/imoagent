@@ -5,12 +5,13 @@
  * Covers: filtering, sorting, pagination, statistics, facets, multi-source aggregation
  */
 
-import { SearchService } from '../src/services/SearchService';
-import type { PropertyCanonicalModel, SearchParams, SearchResult } from '../src/types';
+import { SearchService } from '../src/services/ia-busca/SearchService';
+import type { PropertyCanonicalModel } from '../src/models/PropertyCanonicalModel';
+import type { SearchQuery, SearchResults } from '../src/types/search';
 
 // Mock dependencies
-jest.mock('../src/services/ScoringService');
-jest.mock('../src/services/DeduplicationService');
+jest.mock('../src/services/ia-busca/ScoringService');
+jest.mock('../src/services/ia-busca/DeduplicationService');
 
 describe('SearchService', () => {
   let service: SearchService;
