@@ -1,363 +1,470 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Database, Server, Cpu, Layers, Zap, GitBranch, CheckCircle2, AlertCircle } from "lucide-react";
+import { Home, ArrowUpDown, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { 
+  ModeToggle, 
+  SearchFilters, 
+  PropertyGrid, 
+  SearchStats 
+} from "@/components/ia-busca";
+import { 
+  SearchMode, 
+  SearchFilters as ISearchFilters, 
+  SearchSortBy, 
+  SearchResults 
+} from "@/types/search";
+import { PropertyType, TransactionType } from "@/models/PropertyCanonicalModel";
+
+// Mock data for development
+const generateMockResults = (): SearchResults => ({
+  items: [
+    {
+      property: {
+        id: "prop-001",
+        type: PropertyType.APARTMENT,
+        transaction: TransactionType.SALE,
+        title: "T3 Moderno em Campo de Ourique",
+        description: "Apartamento T3 totalmente remodelado com varanda, cozinha equipada e excelente exposição solar.",
+        price: 450000,
+        area: 95,
+        location: {
+          coordinates: { latitude: 38.7196, longitude: -9.1622 },
+          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Campo de Ourique" }
+        },
+        features: { bedrooms: 3, bathrooms: 2, typology: "T3", hasElevator: true, hasBalcony: true },
+        images: [],
+        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-001" },
+        dataQuality: "HIGH" as const
+      },
+      score: 92,
+      matchReasons: ["Recém-publicado (2 dias)", "Múltiplos portais (3)", "Zona premium"],
+      portalsFound: ["Idealista", "Imovirtual", "OLX"],
+      duplicateCount: 3,
+      highlighted: true
+    },
+    {
+      property: {
+        id: "prop-002",
+        type: PropertyType.HOUSE,
+        transaction: TransactionType.SALE,
+        title: "Moradia V4 com Jardim - Cascais",
+        description: "Moradia isolada com 4 quartos, jardim privado, garagem para 2 carros e piscina.",
+        price: 850000,
+        area: 220,
+        location: {
+          coordinates: { latitude: 38.6973, longitude: -9.4233 },
+          address: { distrito: "Lisboa", concelho: "Cascais", freguesia: "Cascais e Estoril" }
+        },
+        features: { bedrooms: 4, bathrooms: 3, typology: "V4", hasGarage: true, hasGarden: true, hasPool: true },
+        images: [],
+        sourceInfo: { portal: "Casafari", listingUrl: "https://casafari.com/mock-002" },
+        dataQuality: "HIGH" as const
+      },
+      score: 88,
+      matchReasons: ["Zona de alta procura", "Características premium", "Preço competitivo"],
+      portalsFound: ["Casafari", "Idealista"],
+      duplicateCount: 2,
+      highlighted: true
+    },
+    {
+      property: {
+        id: "prop-003",
+        type: PropertyType.APARTMENT,
+        transaction: TransactionType.SALE,
+        title: "T2 Renovado - Baixa do Porto",
+        description: "Apartamento T2 no centro histórico do Porto, totalmente renovado, próximo à Ribeira.",
+        price: 280000,
+        area: 75,
+        location: {
+          coordinates: { latitude: 41.1422, longitude: -8.6115 },
+          address: { distrito: "Porto", concelho: "Porto", freguesia: "Cedofeita, Santo Ildefonso, Sé, Miragaia, São Nicolau e Vitória" }
+        },
+        features: { bedrooms: 2, bathrooms: 1, typology: "T2", hasElevator: false, hasBalcony: false },
+        images: [],
+        sourceInfo: { portal: "OLX", listingUrl: "https://olx.pt/mock-003" },
+        dataQuality: "MEDIUM" as const
+      },
+      score: 85,
+      matchReasons: ["Centro histórico", "Recém-renovado", "Boa relação preço/m²"],
+      portalsFound: ["OLX", "Imovirtual", "Facebook"],
+      duplicateCount: 3,
+      highlighted: false
+    },
+    {
+      property: {
+        id: "prop-004",
+        type: PropertyType.APARTMENT,
+        transaction: TransactionType.SALE,
+        title: "T1 com Vista Rio - Parque das Nações",
+        description: "T1 moderno com vista para o Tejo, condomínio fechado com piscina e ginásio.",
+        price: 320000,
+        area: 55,
+        location: {
+          coordinates: { latitude: 38.7686, longitude: -9.0947 },
+          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Parque das Nações" }
+        },
+        features: { bedrooms: 1, bathrooms: 1, typology: "T1", hasElevator: true, hasBalcony: true, hasPool: true },
+        images: [],
+        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-004" },
+        dataQuality: "HIGH" as const
+      },
+      score: 78,
+      matchReasons: ["Condomínio de luxo", "Vista panorâmica", "Zona moderna"],
+      portalsFound: ["Idealista", "Casafari"],
+      duplicateCount: 2,
+      highlighted: false
+    },
+    {
+      property: {
+        id: "prop-005",
+        type: PropertyType.VILLA,
+        transaction: TransactionType.SALE,
+        title: "Quinta com 5000m² - Sintra",
+        description: "Quinta histórica em Sintra com casa principal restaurada, anexo independente e terreno amplo.",
+        price: 1500000,
+        area: 350,
+        location: {
+          coordinates: { latitude: 38.8029, longitude: -9.3817 },
+          address: { distrito: "Lisboa", concelho: "Sintra", freguesia: "Sintra (Santa Maria e São Miguel, São Martinho e São Pedro de Penaferrim)" }
+        },
+        features: { bedrooms: 6, bathrooms: 4, typology: "V6", hasGarage: true, hasGarden: true, landArea: 5000 },
+        images: [],
+        sourceInfo: { portal: "Casafari", listingUrl: "https://casafari.com/mock-005" },
+        dataQuality: "HIGH" as const
+      },
+      score: 75,
+      matchReasons: ["Propriedade única", "Valor histórico", "Grande potencial"],
+      portalsFound: ["Casafari", "BPI"],
+      duplicateCount: 2,
+      highlighted: false
+    },
+    {
+      property: {
+        id: "prop-006",
+        type: PropertyType.APARTMENT,
+        transaction: TransactionType.SALE,
+        title: "T3 Duplex - Braga Centro",
+        description: "Apartamento T3 duplex em prédio recente, garagem box, terraço privativo.",
+        price: 195000,
+        area: 120,
+        location: {
+          coordinates: { latitude: 41.5518, longitude: -8.4229 },
+          address: { distrito: "Braga", concelho: "Braga", freguesia: "Braga (São José de São Lázaro e São João do Souto)" }
+        },
+        features: { bedrooms: 3, bathrooms: 2, typology: "T3", hasElevator: true, hasGarage: true, hasTerrace: true },
+        images: [],
+        sourceInfo: { portal: "Imovirtual", listingUrl: "https://imovirtual.pt/mock-006" },
+        dataQuality: "MEDIUM" as const
+      },
+      score: 72,
+      matchReasons: ["Centro de Braga", "Duplex diferenciado", "Preço atrativo"],
+      portalsFound: ["Imovirtual", "OLX"],
+      duplicateCount: 2,
+      highlighted: false
+    },
+    {
+      property: {
+        id: "prop-007",
+        type: PropertyType.APARTMENT,
+        transaction: TransactionType.SALE,
+        title: "T2 Avenida da Liberdade - Lisboa",
+        description: "Apartamento clássico numa das avenidas mais emblemáticas de Lisboa, com tetos altos e varanda.",
+        price: 620000,
+        area: 90,
+        location: {
+          coordinates: { latitude: 38.7205, longitude: -9.1422 },
+          address: { distrito: "Lisboa", concelho: "Lisboa", freguesia: "Santo António" }
+        },
+        features: { bedrooms: 2, bathrooms: 2, typology: "T2", hasElevator: true, hasBalcony: true },
+        images: [],
+        sourceInfo: { portal: "Idealista", listingUrl: "https://idealista.pt/mock-007" },
+        dataQuality: "HIGH" as const
+      },
+      score: 68,
+      matchReasons: ["Localização premium", "Edifício clássico", "Alta valorização"],
+      portalsFound: ["Idealista", "Casafari", "Imovirtual"],
+      duplicateCount: 3,
+      highlighted: false
+    },
+    {
+      property: {
+        id: "prop-008",
+        type: PropertyType.HOUSE,
+        transaction: TransactionType.SALE,
+        title: "Moradia V3 Geminada - Matosinhos",
+        description: "Moradia geminada T3 em excelente estado, próximo à praia, com garagem e pequeno jardim.",
+        price: 380000,
+        area: 140,
+        location: {
+          coordinates: { latitude: 41.1820, longitude: -8.6896 },
+          address: { distrito: "Porto", concelho: "Matosinhos", freguesia: "Matosinhos e Leça da Palmeira" }
+        },
+        features: { bedrooms: 3, bathrooms: 2, typology: "V3", hasGarage: true, hasGarden: true },
+        images: [],
+        sourceInfo: { portal: "OLX", listingUrl: "https://olx.pt/mock-008" },
+        dataQuality: "MEDIUM" as const
+      },
+      score: 65,
+      matchReasons: ["Próximo à praia", "Zona familiar", "Bom estado conservação"],
+      portalsFound: ["OLX", "Imovirtual"],
+      duplicateCount: 2,
+      highlighted: false
+    }
+  ],
+  total: 42,
+  page: 1,
+  perPage: 20,
+  totalPages: 3,
+  stats: {
+    totalFound: 42,
+    avgPrice: 428125,
+    minPrice: 195000,
+    maxPrice: 1500000,
+    avgArea: 130,
+    avgScore: 78,
+    portalCounts: { 
+      Idealista: 18, 
+      OLX: 14, 
+      Imovirtual: 16, 
+      Casafari: 12, 
+      Facebook: 3, 
+      BPI: 2 
+    },
+    typeCounts: { 
+      APARTMENT: 28, 
+      HOUSE: 10, 
+      VILLA: 4 
+    },
+    distritoCounts: { 
+      Lisboa: 24, 
+      Porto: 12, 
+      Braga: 6 
+    }
+  }
+});
 
 export default function IABuscaPage() {
+  const [mode, setMode] = useState<SearchMode>(SearchMode.ANGARIACAO);
+  const [filters, setFilters] = useState<ISearchFilters>({});
+  const [sortBy, setSortBy] = useState<SearchSortBy>(SearchSortBy.SCORE);
+  const [results, setResults] = useState<SearchResults | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+
+  const handleSearch = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    
+    try {
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      // Use mock data for now
+      const mockResults = generateMockResults();
+      setResults(mockResults);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao realizar busca");
+    } finally {
+      setLoading(false);
+    }
+  }, [filters, sortBy, mode, page]);
+
+  const handleModeChange = (newMode: SearchMode) => {
+    setMode(newMode);
+    setPage(1);
+  };
+
+  const handleFiltersChange = (newFilters: ISearchFilters) => {
+    setFilters(newFilters);
+    setPage(1);
+  };
+
+  const handleSortChange = (newSort: SearchSortBy) => {
+    setSortBy(newSort);
+  };
+
+  const handleLoadMore = () => {
+    setPage(prev => prev + 1);
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [handleSearch]);
+
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black text-slate-50">
-      <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="min-h-screen bg-slate-950 text-slate-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 mb-8"
-        >
-          ← Voltar para início
-        </Link>
-        
-        <header className="mb-10">
-          <div className="flex flex-wrap gap-2 mb-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-blue-500/15 px-3 py-1 text-xs font-semibold text-blue-200 ring-1 ring-blue-500/40">
-              <Database className="w-3 h-3" />
-              Supabase
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-purple-500/15 px-3 py-1 text-xs font-semibold text-purple-200 ring-1 ring-purple-500/40">
-              <Server className="w-3 h-3" />
-              Netlify Functions
-            </div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-200 ring-1 ring-emerald-500/40">
-              <Cpu className="w-3 h-3" />
-              IA Orquestradora
-            </div>
-          </div>
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-emerald-400 hover:text-emerald-300 transition-colors mb-4"
+          >
+            <Home className="w-4 h-4" />
+            Voltar para início
+          </Link>
           
-          <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
-            Módulo: Busca de Imóveis IA
+          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-emerald-400 to-blue-400 bg-clip-text text-transparent">
+            Busca Inteligente de Imóveis
           </h1>
-          
-          <p className="text-xl text-slate-300 leading-relaxed max-w-4xl">
-            Sistema completo de agregação multi-portal com deduplicação inteligente, 
-            scores de Angariação e Venda, e pipeline automatizado de oportunidades.
+          <p className="text-slate-400">
+            Pesquise imóveis com IA em múltiplos portais com scores de Angariação e Venda
           </p>
-        </header>
+        </div>
 
-        {/* Section 1: Objetivo */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-4 flex items-center gap-3">
-              <Zap className="w-8 h-8 text-yellow-400" />
-              1. Objetivo do Módulo
-            </h2>
-            <p className="text-lg text-slate-300 leading-relaxed">
-              Centralizar e normalizar dados de imóveis de múltiplas fontes (portais, Casafari, CRMs), 
-              criando uma <strong>base de dados canónica</strong> com <strong>Imóveis Únicos</strong> (PropertyEntity). 
-              Calcular <strong>AngariaScore</strong> e <strong>VendaScore</strong> para priorizar oportunidades 
-              de angariação e venda, respectivamente.
-            </p>
-          </div>
-        </section>
+        {/* Mode Toggle */}
+        <div className="mb-6">
+          <ModeToggle 
+            currentMode={mode} 
+            onModeChange={handleModeChange} 
+          />
+        </div>
 
-        {/* Section 2: Fontes de Dados */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <Database className="w-8 h-8 text-blue-400" />
-              2. Fontes de Dados
-            </h2>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              {/* Portais */}
-              <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-6">
-                <h3 className="text-xl font-semibold mb-3 text-blue-300">Portais Imobiliários</h3>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Idealista
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Imovirtual
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    OLX
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Facebook Marketplace
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Casa Sapo
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    BPI Imobiliário
-                  </li>
-                </ul>
+        {/* Main Content */}
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Filters Sidebar */}
+          <aside className="lg:w-80 flex-shrink-0">
+            <div className="sticky top-8">
+              <SearchFilters
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+                onSearch={handleSearch}
+                loading={loading}
+              />
+            </div>
+          </aside>
+
+          {/* Results Area */}
+          <main className="flex-1 min-w-0">
+            {/* Stats */}
+            {results && (
+              <div className="mb-6">
+                <SearchStats stats={results.stats} mode={mode} />
               </div>
+            )}
 
-              {/* Casafari */}
-              <div className="rounded-2xl border border-purple-500/30 bg-purple-500/5 p-6">
-                <h3 className="text-xl font-semibold mb-3 text-purple-300">Casafari API</h3>
-                <p className="text-sm text-slate-300 mb-4">
-                  Plataforma premium com dados enriquecidos e histórico de mercado.
+            {/* Sort Controls */}
+            <div className="flex items-center justify-between mb-6">
+              <p className="text-sm text-slate-400">
+                {results ? (
+                  <>
+                    <span className="font-semibold text-slate-200">{results.total}</span> imóveis encontrados
+                  </>
+                ) : (
+                  "A carregar..."
+                )}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="w-4 h-4 text-slate-400" />
+                <select
+                  value={sortBy}
+                  onChange={(e) => handleSortChange(e.target.value as SearchSortBy)}
+                  className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                >
+                  <option value={SearchSortBy.SCORE}>Score (Maior primeiro)</option>
+                  <option value={SearchSortBy.PRICE_ASC}>Preço (Menor primeiro)</option>
+                  <option value={SearchSortBy.PRICE_DESC}>Preço (Maior primeiro)</option>
+                  <option value={SearchSortBy.AREA_ASC}>Área (Menor primeiro)</option>
+                  <option value={SearchSortBy.AREA_DESC}>Área (Maior primeiro)</option>
+                  <option value={SearchSortBy.RECENT}>Mais Recentes</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {loading && !results && (
+              <div className="flex flex-col items-center justify-center py-20">
+                <Loader2 className="w-12 h-12 text-emerald-400 animate-spin mb-4" />
+                <p className="text-slate-400">A procurar os melhores imóveis...</p>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && (
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-6 backdrop-blur">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-red-200 mb-2">Erro ao realizar busca</h3>
+                    <p className="text-sm text-red-300 mb-4">{error}</p>
+                    <button
+                      onClick={handleSearch}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-lg text-sm font-medium text-red-200 transition-colors"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                      Tentar novamente
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Results Grid */}
+            {results && !loading && (
+              <>
+                <PropertyGrid 
+                  items={results.items} 
+                  mode={mode}
+                  loading={loading}
+                />
+
+                {/* Load More / Pagination */}
+                {results.page < results.totalPages && (
+                  <div className="mt-8 text-center">
+                    <button
+                      onClick={handleLoadMore}
+                      disabled={loading}
+                      className="inline-flex items-center gap-2 px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-700 disabled:text-slate-400 rounded-lg font-medium transition-colors"
+                    >
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          A carregar...
+                        </>
+                      ) : (
+                        <>
+                          Carregar mais imóveis
+                          <span className="text-xs opacity-80">
+                            (Página {results.page} de {results.totalPages})
+                          </span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Empty State */}
+            {results && results.items.length === 0 && !loading && (
+              <div className="text-center py-20">
+                <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <AlertCircle className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-slate-300 mb-2">
+                  Nenhum imóvel encontrado
+                </h3>
+                <p className="text-slate-400 mb-6">
+                  Tente ajustar os filtros ou alterar os critérios de busca
                 </p>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Geolocalização precisa
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Histórico de preços
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Market insights
-                  </li>
-                </ul>
+                <button
+                  onClick={() => {
+                    setFilters({});
+                    handleSearch();
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-medium transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Limpar filtros
+                </button>
               </div>
-
-              {/* CRMs */}
-              <div className="rounded-2xl border border-orange-500/30 bg-orange-500/5 p-6">
-                <h3 className="text-xl font-semibold mb-3 text-orange-300">CRMs Externos</h3>
-                <p className="text-sm text-slate-300 mb-4">
-                  Integração bidirecional com sistemas CRM existentes.
-                </p>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Salesforce
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    HubSpot
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Pipedrive
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 3: Arquitetura 5 Camadas */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <Layers className="w-8 h-8 text-cyan-400" />
-              3. Arquitetura em 5 Camadas
-            </h2>
-            
-            <div className="space-y-4">
-              {[
-                { layer: "Camada 1", name: "Conectores", desc: "Portal/Casafari/CRM → ingestion.raw_*" },
-                { layer: "Camada 2", name: "Normalização IA", desc: "IA Orquestradora normaliza dados crus" },
-                { layer: "Camada 3", name: "Deduplicação", desc: "Embeddings + Image Hashes → PropertyEntity único" },
-                { layer: "Camada 4", name: "Engines IA", desc: "Availability, Events, Scores (Angaria/Venda)" },
-                { layer: "Camada 5", name: "APIs & Frontend", desc: "Search, Alerts, Opportunities, Tasks" },
-              ].map((item, idx) => (
-                <div key={idx} className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-5 flex items-start gap-4">
-                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-bold">
-                    {idx + 1}
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-cyan-200">{item.name}</h3>
-                    <p className="text-sm text-slate-300">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section 4: IA do Módulo - Scores */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <Cpu className="w-8 h-8 text-emerald-400" />
-              4. IA do Módulo: Scores
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* AngariaScore */}
-              <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-6">
-                <h3 className="text-2xl font-semibold mb-3 text-red-300">AngariaScore (0-100)</h3>
-                <p className="text-sm text-slate-300 mb-4">
-                  Pontuação para priorizar imóveis com potencial de angariação.
-                </p>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <strong>Recência:</strong> Imóveis recém-publicados (0-40 pts)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <strong>Multi-portal:</strong> Múltiplas fontes (0-30 pts)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-red-400"></div>
-                    <strong>Divergência de preço:</strong> Variação entre portais (0-30 pts)
-                  </li>
-                </ul>
-              </div>
-
-              {/* VendaScore */}
-              <div className="rounded-2xl border border-green-500/30 bg-green-500/5 p-6">
-                <h3 className="text-2xl font-semibold mb-3 text-green-300">VendaScore (0-100)</h3>
-                <p className="text-sm text-slate-300 mb-4">
-                  Pontuação para priorizar imóveis disponíveis para venda.
-                </p>
-                <ul className="space-y-2 text-sm text-slate-300">
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <strong>Disponibilidade:</strong> Probabilidade de estar ativo (0-40 pts)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <strong>Recência:</strong> Atualizações recentes (0-30 pts)
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-400"></div>
-                    <strong>Visibilidade:</strong> Número de portais (0-30 pts)
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section 5: Modelo Canónico */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <GitBranch className="w-8 h-8 text-blue-400" />
-              5. Modelo Canónico (Supabase)
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4 text-sm">
-              {[
-                { table: "properties", desc: "Imóveis Únicos (deduplicated)" },
-                { table: "listing_appearances", desc: "Anúncios individuais por portal" },
-                { table: "contacts", desc: "Proprietários, compradores, agentes" },
-                { table: "opportunities", desc: "Oportunidades ANGARIACAO/VENDA" },
-                { table: "tasks", desc: "Tarefas e cadências de follow-up" },
-                { table: "alerts", desc: "Alertas personalizados por utilizador" },
-                { table: "acm_reports", desc: "Análises Comparativas de Mercado" },
-                { table: "market_events", desc: "NEW_ON_MARKET, PRICE_DROP, etc" },
-                { table: "property_embeddings", desc: "Vetores para similarity search" },
-                { table: "image_hashes", desc: "Hashes perceptuais para dedup visual" },
-              ].map((item, idx) => (
-                <div key={idx} className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                  <code className="text-blue-300 font-mono font-semibold">{item.table}</code>
-                  <p className="text-slate-400 text-xs mt-1">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section 6: IA Interna (Engines) */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <Zap className="w-8 h-8 text-yellow-400" />
-              6. Engines Automáticas (Scheduled)
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-4">
-              {[
-                { name: "Dedup Engine", freq: "15 min", desc: "Agrupa listings similares em PropertyEntity" },
-                { name: "Availability Engine", freq: "1 hora", desc: "Calcula probabilidade de disponibilidade" },
-                { name: "Event Engine", freq: "30 min", desc: "Detecta eventos de mercado (price drops, etc)" },
-                { name: "Score Engine", freq: "1 hora", desc: "Atualiza AngariaScore e VendaScore" },
-              ].map((engine, idx) => (
-                <div key={idx} className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-lg font-semibold text-yellow-300">{engine.name}</h3>
-                    <span className="text-xs bg-yellow-500/20 text-yellow-200 px-2 py-1 rounded-full">
-                      {engine.freq}
-                    </span>
-                  </div>
-                  <p className="text-sm text-slate-300">{engine.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Section 7: Arquitetura Técnica */}
-        <section className="mb-8">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-8 backdrop-blur">
-            <h2 className="text-3xl font-semibold mb-6 flex items-center gap-3">
-              <Server className="w-8 h-8 text-purple-400" />
-              7. Arquitetura Técnica
-            </h2>
-            
-            <div className="space-y-4">
-              <div className="rounded-xl border border-purple-500/30 bg-purple-500/5 p-6">
-                <h3 className="text-xl font-semibold mb-3 text-purple-300">Backend: Netlify Functions</h3>
-                <div className="grid md:grid-cols-2 gap-2 text-sm text-slate-300">
-                  <div>• properties-search.ts</div>
-                  <div>• properties-get.ts</div>
-                  <div>• alerts.ts</div>
-                  <div>• acm-generate.ts</div>
-                  <div>• opportunities.ts</div>
-                  <div>• tasks.ts</div>
-                  <div>• integrations-crm-sync.ts</div>
-                  <div>• 6 conectores (portais + CRM)</div>
-                </div>
-              </div>
-
-              <div className="rounded-xl border border-blue-500/30 bg-blue-500/5 p-6">
-                <h3 className="text-xl font-semibold mb-3 text-blue-300">Database: Supabase PostgreSQL</h3>
-                <div className="grid md:grid-cols-3 gap-2 text-sm text-slate-300">
-                  <div>• 11 tabelas public</div>
-                  <div>• 4 tabelas ingestion</div>
-                  <div>• Row Level Security (RLS)</div>
-                  <div>• Vector search (pgvector)</div>
-                  <div>• PostGIS (geolocation)</div>
-                  <div>• Triggers automáticos</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Status Final */}
-        <section>
-          <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-8 backdrop-blur">
-            <div className="flex items-start gap-4">
-              <CheckCircle2 className="w-8 h-8 text-emerald-400 flex-shrink-0" />
-              <div>
-                <h2 className="text-2xl font-semibold mb-2 text-emerald-100">
-                  Status: Arquitetura Completa Implementada
-                </h2>
-                <p className="text-emerald-50 mb-4">
-                  Todos os componentes do módulo foram criados e estão prontos para deploy. 
-                  O sistema está preparado para integração com os portais reais e início das operações.
-                </p>
-                <div className="grid md:grid-cols-3 gap-3 text-sm">
-                  <div className="rounded-lg bg-emerald-500/10 p-3 border border-emerald-500/20">
-                    <div className="font-semibold text-emerald-200">✓ 23 Ficheiros</div>
-                    <div className="text-emerald-100 text-xs">APIs, Connectors, Engines</div>
-                  </div>
-                  <div className="rounded-lg bg-emerald-500/10 p-3 border border-emerald-500/20">
-                    <div className="font-semibold text-emerald-200">✓ 15 Tabelas</div>
-                    <div className="text-emerald-100 text-xs">Schema completo + RLS</div>
-                  </div>
-                  <div className="rounded-lg bg-emerald-500/10 p-3 border border-emerald-500/20">
-                    <div className="font-semibold text-emerald-200">✓ 4 Engines</div>
-                    <div className="text-emerald-100 text-xs">Scheduled functions</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+            )}
+          </main>
+        </div>
       </div>
     </div>
   );
