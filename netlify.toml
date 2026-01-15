@@ -9,3 +9,57 @@
 
 [functions]
   directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Scheduled Functions - IA Busca Module
+[[functions]]
+  name = "scheduled/dedup-engine-runner"
+  schedule = "*/15 * * * *"
+
+[[functions]]
+  name = "scheduled/availability-engine-runner"
+  schedule = "0 * * * *"
+
+[[functions]]
+  name = "scheduled/event-engine-runner"
+  schedule = "*/30 * * * *"
+
+[[functions]]
+  name = "scheduled/score-engine-runner"
+  schedule = "0 * * * *"
+
+# API redirects
+[[redirects]]
+  from = "/api/properties/search"
+  to = "/.netlify/functions/properties-search"
+  status = 200
+
+[[redirects]]
+  from = "/api/properties/:id"
+  to = "/.netlify/functions/properties-get"
+  status = 200
+
+[[redirects]]
+  from = "/api/alerts"
+  to = "/.netlify/functions/alerts"
+  status = 200
+
+[[redirects]]
+  from = "/api/acm/generate"
+  to = "/.netlify/functions/acm-generate"
+  status = 200
+
+[[redirects]]
+  from = "/api/opportunities"
+  to = "/.netlify/functions/opportunities"
+  status = 200
+
+[[redirects]]
+  from = "/api/tasks"
+  to = "/.netlify/functions/tasks"
+  status = 200
+
+[[redirects]]
+  from = "/api/integrations/crm/sync"
+  to = "/.netlify/functions/integrations-crm-sync"
+  status = 200
