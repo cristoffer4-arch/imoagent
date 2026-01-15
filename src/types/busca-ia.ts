@@ -43,6 +43,7 @@ export interface Source {
   last_seen: string;
   url?: string;
   price?: number;
+  source_agency?: string;
 }
 
 export interface Reason {

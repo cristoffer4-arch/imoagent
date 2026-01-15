@@ -8,10 +8,10 @@ import { generateMockProperties } from '@/lib/ia-busca/mock-data';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id } = params;
+    const { id } = await params;
 
     // In production, query from database
     // For MVP, search in mock data
