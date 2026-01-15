@@ -2,12 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Home, ArrowUpDown, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { 
   ModeToggle, 
   SearchFilters, 
   PropertyGrid, 
-  SearchStats 
+  SearchStats,
+  MapToggle,
+  ViewType
 } from "@/components/ia-busca";
 import { 
   SearchMode, 
@@ -15,6 +18,22 @@ import {
   SearchSortBy, 
   SearchResults 
 } from "@/types/search";
+
+// Dynamic import to avoid SSR issues with Leaflet
+const PropertyMap = dynamic(
+  () => import("@/components/ia-busca").then((mod) => ({ default: mod.PropertyMap })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[500px] md:h-[600px] bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+          <p className="text-slate-400 text-sm">A carregar mapa...</p>
+        </div>
+      </div>
+    )
+  }
+);
 import {
   PropertyType,
   TransactionType,
@@ -27,7 +46,7 @@ import {
 const generateMockResults = (): SearchResults => ({
   items: [
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-001",
         tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
@@ -56,19 +75,18 @@ const generateMockResults = (): SearchResults => ({
           }
         },
         metadata: {
-          typology: "T3",
           sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-001" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "HIGH" as DataQuality
+          dataQuality: DataQuality.HIGH
         },
         title: "T3 Moderno em Campo de Ourique",
         description: "Apartamento T3 totalmente remodelado com varanda, cozinha equipada e excelente exposição solar.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 92,
       matchReasons: ["Recém-publicado (2 dias)", "Múltiplos portais (3)", "Zona premium"],
       portalsFound: ["Idealista", "Imovirtual", "OLX"],
@@ -76,7 +94,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: true
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-002",
         tenantId: "mock-tenant",
         type: PropertyType.HOUSE,
@@ -102,25 +120,23 @@ const generateMockResults = (): SearchResults => ({
           bathrooms: 3,
           parkingSpaces: 2,
           features: {
-            garage: true,
             garden: true,
             pool: true
           }
         },
         metadata: {
-          typology: "V4",
           sources: [{ type: "CASAFARI" as const, name: "Casafari", id: "casafari-mock", url: "https://casafari.com/mock-002" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "HIGH" as DataQuality
+          dataQuality: DataQuality.HIGH
         },
         title: "Moradia V4 com Jardim - Cascais",
         description: "Moradia isolada com 4 quartos, jardim privado, garagem para 2 carros e piscina.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 88,
       matchReasons: ["Zona de alta procura", "Características premium", "Preço competitivo"],
       portalsFound: ["Casafari", "Idealista"],
@@ -128,7 +144,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: true
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-003",
         tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
@@ -151,26 +167,25 @@ const generateMockResults = (): SearchResults => ({
           totalArea: 75,
           bedrooms: 2,
           bathrooms: 1,
+          condition: PropertyCondition.RENOVATED,
           features: {
             elevator: false,
             balcony: false
           }
         },
         metadata: {
-          typology: "T2",
-          condition: PropertyCondition.RENOVATED,
           sources: [{ type: "PORTAL" as const, name: "OLX", id: "olx-mock", url: "https://olx.pt/mock-003" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "MEDIUM" as DataQuality
+          dataQuality: DataQuality.MEDIUM
         },
         title: "T2 Renovado - Baixa do Porto",
         description: "Apartamento T2 no centro histórico do Porto, totalmente renovado, próximo à Ribeira.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 85,
       matchReasons: ["Centro histórico", "Recém-renovado", "Boa relação preço/m²"],
       portalsFound: ["OLX", "Imovirtual", "Facebook"],
@@ -178,7 +193,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: false
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-004",
         tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
@@ -208,19 +223,18 @@ const generateMockResults = (): SearchResults => ({
           }
         },
         metadata: {
-          typology: "T1",
           sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-004" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "HIGH" as DataQuality
+          dataQuality: DataQuality.HIGH
         },
         title: "T1 com Vista Rio - Parque das Nações",
         description: "T1 moderno com vista para o Tejo, condomínio fechado com piscina e ginásio.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 78,
       matchReasons: ["Condomínio de luxo", "Vista panorâmica", "Zona moderna"],
       portalsFound: ["Idealista", "Casafari"],
@@ -228,7 +242,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: false
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-005",
         tenantId: "mock-tenant",
         type: PropertyType.VILLA,
@@ -253,24 +267,22 @@ const generateMockResults = (): SearchResults => ({
           bedrooms: 6,
           bathrooms: 4,
           features: {
-            garage: true,
             garden: true
           }
         },
         metadata: {
-          typology: "V6",
           sources: [{ type: "CASAFARI" as const, name: "Casafari", id: "casafari-mock", url: "https://casafari.com/mock-005" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "HIGH" as DataQuality
+          dataQuality: DataQuality.HIGH
         },
         title: "Quinta com 5000m² - Sintra",
         description: "Quinta histórica em Sintra com casa principal restaurada, anexo independente e terreno amplo.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 75,
       matchReasons: ["Propriedade única", "Valor histórico", "Grande potencial"],
       portalsFound: ["Casafari", "BPI"],
@@ -278,7 +290,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: false
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-006",
         tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
@@ -304,24 +316,22 @@ const generateMockResults = (): SearchResults => ({
           parkingSpaces: 1,
           features: {
             elevator: true,
-            garage: true,
             terrace: true
           }
         },
         metadata: {
-          typology: "T3",
           sources: [{ type: "PORTAL" as const, name: "Imovirtual", id: "imovirtual-mock", url: "https://imovirtual.pt/mock-006" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "MEDIUM" as DataQuality
+          dataQuality: DataQuality.MEDIUM
         },
         title: "T3 Duplex - Braga Centro",
         description: "Apartamento T3 duplex em prédio recente, garagem box, terraço privativo.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 72,
       matchReasons: ["Centro de Braga", "Duplex diferenciado", "Preço atrativo"],
       portalsFound: ["Imovirtual", "OLX"],
@@ -329,7 +339,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: false
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-007",
         tenantId: "mock-tenant",
         type: PropertyType.APARTMENT,
@@ -358,19 +368,18 @@ const generateMockResults = (): SearchResults => ({
           }
         },
         metadata: {
-          typology: "T2",
           sources: [{ type: "PORTAL" as const, name: "Idealista", id: "idealista-mock-001", url: "https://idealista.pt/mock-007" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "HIGH" as DataQuality
+          dataQuality: DataQuality.HIGH
         },
         title: "T2 Avenida da Liberdade - Lisboa",
         description: "Apartamento clássico numa das avenidas mais emblemáticas de Lisboa, com tetos altos e varanda.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 68,
       matchReasons: ["Localização premium", "Edifício clássico", "Alta valorização"],
       portalsFound: ["Idealista", "Casafari", "Imovirtual"],
@@ -378,7 +387,7 @@ const generateMockResults = (): SearchResults => ({
       highlighted: false
     },
     {
-      property: {
+      property: new PropertyCanonicalModel({
         id: "prop-008",
         tenantId: "mock-tenant",
         type: PropertyType.HOUSE,
@@ -403,24 +412,22 @@ const generateMockResults = (): SearchResults => ({
           bathrooms: 2,
           parkingSpaces: 1,
           features: {
-            garage: true,
             garden: true
           }
         },
         metadata: {
-          typology: "V3",
           sources: [{ type: "PORTAL" as const, name: "OLX", id: "olx-mock", url: "https://olx.pt/mock-008" }],
           firstSeen: new Date(),
           lastSeen: new Date(),
           lastUpdated: new Date(),
-          dataQuality: "MEDIUM" as DataQuality
+          dataQuality: DataQuality.MEDIUM
         },
         title: "Moradia V3 Geminada - Matosinhos",
         description: "Moradia geminada T3 em excelente estado, próximo à praia, com garagem e pequeno jardim.",
         images: [],
         createdAt: new Date(),
         updatedAt: new Date()
-      } as PropertyCanonicalModel,
+      }),
       score: 65,
       matchReasons: ["Próximo à praia", "Zona familiar", "Bom estado conservação"],
       portalsFound: ["OLX", "Imovirtual"],
@@ -468,6 +475,7 @@ export default function IABuscaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
+  const [view, setView] = useState<ViewType>("grid");
 
   const handleSearch = useCallback(async () => {
     setLoading(true);
@@ -559,8 +567,8 @@ export default function IABuscaPage() {
               </div>
             )}
 
-            {/* Sort Controls */}
-            <div className="flex items-center justify-between mb-6">
+            {/* Sort Controls and Map Toggle */}
+            <div className="flex items-center justify-between mb-6 gap-4 flex-wrap">
               <p className="text-sm text-slate-400">
                 {results ? (
                   <>
@@ -571,20 +579,26 @@ export default function IABuscaPage() {
                 )}
               </p>
 
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="w-4 h-4 text-slate-400" />
-                <select
-                  value={sortBy}
-                  onChange={(e) => handleSortChange(e.target.value as SearchSortBy)}
-                  className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                >
-                  <option value={SearchSortBy.SCORE}>Score (Maior primeiro)</option>
-                  <option value={SearchSortBy.PRICE_ASC}>Preço (Menor primeiro)</option>
-                  <option value={SearchSortBy.PRICE_DESC}>Preço (Maior primeiro)</option>
-                  <option value={SearchSortBy.AREA_ASC}>Área (Menor primeiro)</option>
-                  <option value={SearchSortBy.AREA_DESC}>Área (Maior primeiro)</option>
-                  <option value={SearchSortBy.RECENT}>Mais Recentes</option>
-                </select>
+              <div className="flex items-center gap-3">
+                {/* Map/Grid Toggle */}
+                <MapToggle view={view} onChange={setView} />
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4 text-slate-400" />
+                  <select
+                    value={sortBy}
+                    onChange={(e) => handleSortChange(e.target.value as SearchSortBy)}
+                    className="bg-slate-900 border border-slate-700 text-slate-200 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  >
+                    <option value={SearchSortBy.SCORE}>Score (Maior primeiro)</option>
+                    <option value={SearchSortBy.PRICE_ASC}>Preço (Menor primeiro)</option>
+                    <option value={SearchSortBy.PRICE_DESC}>Preço (Maior primeiro)</option>
+                    <option value={SearchSortBy.AREA_ASC}>Área (Menor primeiro)</option>
+                    <option value={SearchSortBy.AREA_DESC}>Área (Maior primeiro)</option>
+                    <option value={SearchSortBy.RECENT}>Mais Recentes</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -616,15 +630,27 @@ export default function IABuscaPage() {
               </div>
             )}
 
-            {/* Results Grid */}
+            {/* Results Grid or Map */}
             {results && !loading && (
-              <PropertyGrid 
-                properties={results.items} 
-                loading={loading}
-                hasMore={results.page < results.totalPages}
-                onLoadMore={handleLoadMore}
-                loadingMore={loading && results.items.length > 0}
-              />
+              <div className="transition-all duration-300">
+                {view === "grid" ? (
+                  <PropertyGrid 
+                    properties={results.items} 
+                    loading={loading}
+                    hasMore={results.page < results.totalPages}
+                    onLoadMore={handleLoadMore}
+                    loadingMore={loading && results.items.length > 0}
+                  />
+                ) : (
+                  <PropertyMap 
+                    properties={results.items}
+                    onPropertyClick={(propertyId) => {
+                      console.log("Clicked property:", propertyId);
+                      // TODO: Implementar modal ou navegação para detalhes
+                    }}
+                  />
+                )}
+              </div>
             )}
 
             {/* Empty State */}
