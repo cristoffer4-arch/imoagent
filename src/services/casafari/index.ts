@@ -197,7 +197,7 @@ export class CasafariService {
     perPage: number = 20
   ): Promise<ServiceResponse<CanonicalProperty[]>> {
     // Mock fallback for development without API key
-    if (!this.config.apiKey || this.config.apiKey === 'mock' || this.isDevelopment) {
+    if (!this.config.apiKey || this.config.apiKey === 'mock') {
       const mockData = this.getMockProperties();
       const canonicalData = transformCasafariProperties(mockData);
       
@@ -234,7 +234,7 @@ export class CasafariService {
    */
   async getPropertyDetails(propertyId: string): Promise<ServiceResponse<CanonicalProperty>> {
     // Mock fallback
-    if (!this.config.apiKey || this.config.apiKey === 'mock' || this.isDevelopment) {
+    if (!this.config.apiKey || this.config.apiKey === 'mock') {
       const mockData = this.getMockProperties().find(p => p.id === propertyId);
       
       if (!mockData) {
@@ -289,20 +289,20 @@ export class CasafariService {
     params: CasafariSearchParams
   ): Promise<ServiceResponse<CanonicalProperty[]>> {
     // Mock fallback
-    if (!this.config.apiKey || this.config.apiKey === 'mock' || this.isDevelopment) {
+    if (!this.config.apiKey || this.config.apiKey === 'mock') {
       let mockData = this.getMockProperties();
 
       // Apply basic filters to mock data
       if (params.city) {
         mockData = mockData.filter(p => 
-          p.location.city.toLowerCase().includes(params.city!.toLowerCase())
+          p.location.city.toLowerCase().includes(params.city.toLowerCase())
         );
       }
       if (params.minPrice) {
-        mockData = mockData.filter(p => p.price >= params.minPrice!);
+        mockData = mockData.filter(p => p.price >= params.minPrice);
       }
       if (params.maxPrice) {
-        mockData = mockData.filter(p => p.price <= params.maxPrice!);
+        mockData = mockData.filter(p => p.price <= params.maxPrice);
       }
       if (params.bedrooms) {
         mockData = mockData.filter(p => p.bedrooms === params.bedrooms);

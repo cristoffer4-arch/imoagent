@@ -171,14 +171,14 @@ export class CasafariClient {
       // Apply filters to mock data
       if (params.city) {
         mockData = mockData.filter((p) =>
-          p.location.city.toLowerCase().includes(params.city!.toLowerCase())
+          p.location.city.toLowerCase().includes(params.city.toLowerCase())
         );
       }
       if (params.minPrice) {
-        mockData = mockData.filter((p) => p.price >= params.minPrice!);
+        mockData = mockData.filter((p) => p.price >= params.minPrice);
       }
       if (params.maxPrice) {
-        mockData = mockData.filter((p) => p.price <= params.maxPrice!);
+        mockData = mockData.filter((p) => p.price <= params.maxPrice);
       }
       if (params.bedrooms) {
         mockData = mockData.filter((p) => p.bedrooms === params.bedrooms);
