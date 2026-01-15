@@ -4,7 +4,7 @@
 
 import { CasafariService, CasafariApiError, createCasafariService } from '../src/services/casafari/CasafariService';
 import type { CasafariSearchFilters, CasafariListResponse, CasafariDetailResponse } from '../src/services/casafari/types';
-import { PropertyType, TransactionType } from '../src/models/PropertyCanonicalModel';
+import { PropertyType } from '../src/models/PropertyCanonicalModel';
 
 // Mock fetch global
 global.fetch = jest.fn();
