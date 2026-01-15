@@ -358,9 +358,9 @@ export async function example6_MLOptimization() {
   console.log('Sugestão do sistema:');
   console.log(`  ${suggestion.rationale}\n`);
 
-  // Aplicar pesos otimizados
-  const engine = new ScoringEngine(optimizedWeights);
-  console.log('✓ Engine atualizada com pesos otimizados');
+  // Aplicar pesos otimizados - cria nova engine para uso futuro
+  new ScoringEngine(optimizedWeights);
+  console.log('✓ Engine pode ser atualizada com pesos otimizados');
 }
 
 // ============================================================================

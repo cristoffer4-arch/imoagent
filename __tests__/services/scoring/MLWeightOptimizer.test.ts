@@ -2,8 +2,8 @@
  * Tests for MLWeightOptimizer
  */
 
-import { MLWeightOptimizer, TrainingSample } from '@/services/scoring/MLWeightOptimizer';
-import { ScoreComponents, ScoreWeights } from '@/services/scoring/types';
+import { MLWeightOptimizer, TrainingSample, UserOutcome } from '@/services/scoring/MLWeightOptimizer';
+import { ScoreWeights } from '@/services/scoring/types';
 
 describe('MLWeightOptimizer', () => {
   let optimizer: MLWeightOptimizer;
@@ -176,6 +176,7 @@ describe('MLWeightOptimizer', () => {
     });
 
     it('should ensure weights sum to 1.0', () => {
+      const outcomes: UserOutcome[] = ['converted', 'contacted', 'viewed', 'ignored'];
       for (let i = 0; i < 50; i++) {
         optimizer.addTrainingSample({
           propertyId: `prop-${i}`,
@@ -184,7 +185,7 @@ describe('MLWeightOptimizer', () => {
             behaviorScore: 50 + Math.random() * 50,
             temporalScore: 40 + Math.random() * 60,
           },
-          outcome: ['converted', 'contacted', 'viewed', 'ignored'][Math.floor(Math.random() * 4)] as any,
+          outcome: outcomes[Math.floor(Math.random() * 4)],
           timestamp: new Date(),
         });
       }
@@ -409,6 +410,7 @@ describe('MLWeightOptimizer', () => {
         temporal: 0.3,
       };
       
+      const outcomes: UserOutcome[] = ['converted', 'contacted', 'viewed'];
       const testSamples: TrainingSample[] = Array(60).fill(null).map((_, i) => ({
         propertyId: `prop-${i}`,
         features: {
@@ -416,7 +418,7 @@ describe('MLWeightOptimizer', () => {
           behaviorScore: 60 + Math.random() * 40,
           temporalScore: 50 + Math.random() * 50,
         },
-        outcome: ['converted', 'contacted', 'viewed'][Math.floor(Math.random() * 3)] as any,
+        outcome: outcomes[Math.floor(Math.random() * 3)],
         timestamp: new Date(),
       }));
       

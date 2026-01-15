@@ -458,36 +458,29 @@ export class ScoringEngine {
     temporal?: TemporalFactors
   ): number {
     let confidence = 0.5;
-    let factors = 0;
 
     // Property data completeness
     if (property.lat && property.lon) {
       confidence += 0.1;
-      factors++;
     }
     if (property.price_main) {
       confidence += 0.1;
-      factors++;
     }
     if (property.typology) {
       confidence += 0.05;
-      factors++;
     }
     if (property.area_m2) {
       confidence += 0.05;
-      factors++;
     }
 
     // Behavior data availability
     if (behavior && (behavior.views || behavior.totalViewTime || behavior.interactions)) {
       confidence += 0.1;
-      factors++;
     }
 
     // Temporal data availability
     if (temporal || property.first_seen) {
       confidence += 0.1;
-      factors++;
     }
 
     return Math.min(1, confidence);
