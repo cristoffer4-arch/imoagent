@@ -257,8 +257,9 @@ export function PropertyMap({
                     }
                   },
                 }}
-                // @ts-ignore - custom property for cluster icon
-                score={score}
+                // Note: Leaflet MarkerClusterGroup accesses marker.options to calculate cluster averages
+                // This custom score property is used by the iconCreateFunction callback
+                {...({ score } as any)}
               >
                 <Popup
                   className="custom-popup"

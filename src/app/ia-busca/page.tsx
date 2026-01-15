@@ -645,8 +645,8 @@ export default function IABuscaPage() {
                   <PropertyMap 
                     properties={results.items}
                     onPropertyClick={(propertyId) => {
-                      console.log("Clicked property:", propertyId);
-                      // TODO: Implementar modal ou navegação para detalhes
+                      // TODO: Implement property details modal or navigation
+                      // This will be implemented in future iterations
                     }}
                   />
                 )}
