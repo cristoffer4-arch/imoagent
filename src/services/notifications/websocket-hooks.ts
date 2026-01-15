@@ -6,7 +6,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import socketIOClient, { Socket } from 'socket.io-client';
+import socketIOClient from 'socket.io-client';
 import { notificationService } from '@/services/notifications';
 import type { PropertyMatch, PriceChange } from '@/services/notifications';
 
@@ -16,7 +16,7 @@ interface UseWebSocketNotificationsOptions {
 }
 
 export function useWebSocketNotifications({ userId, enabled = true }: UseWebSocketNotificationsOptions) {
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<ReturnType<typeof socketIOClient> | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -48,12 +48,12 @@ export function useWebSocketNotifications({ userId, enabled = true }: UseWebSock
         socket.emit('subscribe-notifications', { userId });
       });
 
-      socket.on('disconnect', (reason) => {
+      socket.on('disconnect', (reason: string) => {
         console.log('📡 WebSocket disconnected:', reason);
         setConnected(false);
       });
 
-      socket.on('connect_error', (err) => {
+      socket.on('connect_error', (err: Error) => {
         console.error('📡 WebSocket connection error:', err);
         setError(err.message);
         setConnected(false);
