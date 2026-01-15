@@ -45,6 +45,59 @@ app.prepare().then(() => {
   io.on('connection', (socket) => {
     console.log('🎮 Client connected:', socket.id);
 
+    // ========================================
+    // NOTIFICATION EVENTS (IA Busca Module)
+    // ========================================
+
+    // Subscribe to property notifications
+    socket.on('subscribe-notifications', (data) => {
+      const { userId } = data;
+      if (userId) {
+        socket.join(`notifications:${userId}`);
+        console.log(`📬 User ${userId} subscribed to notifications`);
+      }
+    });
+
+    // Unsubscribe from notifications
+    socket.on('unsubscribe-notifications', (data) => {
+      const { userId } = data;
+      if (userId) {
+        socket.leave(`notifications:${userId}`);
+        console.log(`📪 User ${userId} unsubscribed from notifications`);
+      }
+    });
+
+    // Send property match notification (server-side trigger)
+    socket.on('send-property-match', (data) => {
+      const { userId, match } = data;
+      if (userId && match) {
+        io.to(`notifications:${userId}`).emit('property-match', match);
+        console.log(`🏠 Property match sent to user ${userId}`);
+      }
+    });
+
+    // Send price change notification
+    socket.on('send-price-change', (data) => {
+      const { userId, priceChange } = data;
+      if (userId && priceChange) {
+        io.to(`notifications:${userId}`).emit('price-change', priceChange);
+        console.log(`💰 Price change notification sent to user ${userId}`);
+      }
+    });
+
+    // Send new property notification
+    socket.on('send-new-property', (data) => {
+      const { userId, property } = data;
+      if (userId && property) {
+        io.to(`notifications:${userId}`).emit('new-property', property);
+        console.log(`🆕 New property notification sent to user ${userId}`);
+      }
+    });
+
+    // ========================================
+    // GAME EVENTS (Lead City)
+    // ========================================
+
     // Get rooms list
     socket.on('get-rooms', () => {
       const roomsList = Array.from(rooms.entries()).map(([name, room]) => ({
