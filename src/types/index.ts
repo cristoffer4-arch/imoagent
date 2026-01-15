@@ -205,3 +205,20 @@ export interface PortalScrapeResult {
   }>
   scrapedAt: Date
 }
+
+// Export scoring types
+export type {
+  UserPreferences,
+  UserBehavior,
+  ScoringWeights,
+  CompatibilityScore,
+  BehaviorScore,
+  TemporalScore,
+  PropertyScore,
+  ScoredProperty,
+  RankingOptions,
+  RankingResult,
+  UserFeedback,
+  MLConfig,
+  ScoringMetrics,
+} from './scoring';
