@@ -155,7 +155,8 @@ export class QueueManager {
    * Obtém próximo item pendente
    */
   private getNextPendingItem(): QueueItem | null {
-    for (const item of this.queue.values()) {
+    const items = Array.from(this.queue.values());
+    for (const item of items) {
       if (item.status === 'pending') {
         return item;
       }
@@ -205,7 +206,8 @@ export class QueueManager {
     const now = Date.now();
     let cleaned = 0;
 
-    for (const [id, item] of this.queue.entries()) {
+    const entries = Array.from(this.queue.entries());
+    for (const [id, item] of entries) {
       if (
         (item.status === 'completed' || item.status === 'failed') &&
         item.completedAt &&

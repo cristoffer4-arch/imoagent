@@ -5,8 +5,8 @@
  * com CRMs via IA Orquestradora.
  */
 
-import { createCRMService } from '../src/services/crm';
-import { LeadStatus } from '../src/types/crm';
+import { createCRMService } from '../services/crm';
+import { LeadStatus, Lead } from '../types/crm';
 
 /**
  * Exemplo 1: Criar instância do serviço
@@ -49,7 +49,7 @@ async function example2_syncLeads() {
       console.log('Metadados:', result.syncMetadata);
       
       // Processar leads
-      result.leads.forEach(lead => {
+      result.leads.forEach((lead: Lead) => {
         console.log(`  - ${lead.name} (${lead.email})`);
         console.log(`    Status: ${lead.status}`);
         console.log(`    Score: ${lead.score || 'N/A'}`);
@@ -84,7 +84,7 @@ async function example3_syncLeadsWithFilters() {
       console.log(`✓ Encontrados ${result.leads.length} leads`);
       
       // Agrupar por status
-      const byStatus = result.leads.reduce((acc, lead) => {
+      const byStatus = result.leads.reduce((acc: Record<string, number>, lead: Lead) => {
         acc[lead.status] = (acc[lead.status] || 0) + 1;
         return acc;
       }, {} as Record<string, number>);
