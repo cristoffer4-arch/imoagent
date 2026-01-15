@@ -42,8 +42,60 @@ app.prepare().then(() => {
     }
   });
 
+  // Notification management
+  const userSockets = new Map(); // userId -> Set of socket IDs
+
   io.on('connection', (socket) => {
     console.log('🎮 Client connected:', socket.id);
+    
+    // Handle notification subscription
+    const userId = socket.handshake.auth?.userId;
+    if (userId) {
+      if (!userSockets.has(userId)) {
+        userSockets.set(userId, new Set());
+      }
+      userSockets.get(userId).add(socket.id);
+      console.log(`📧 User ${userId} subscribed to notifications`);
+    }
+
+    // Subscribe to notifications for a specific user
+    socket.on('subscribe-notifications', (data) => {
+      const { userId } = data;
+      if (!userId) return;
+      
+      if (!userSockets.has(userId)) {
+        userSockets.set(userId, new Set());
+      }
+      userSockets.get(userId).add(socket.id);
+      console.log(`📧 User ${userId} subscribed to notifications`);
+    });
+
+    // Unsubscribe from notifications
+    socket.on('unsubscribe-notifications', (data) => {
+      const { userId } = data;
+      if (!userId) return;
+      
+      const sockets = userSockets.get(userId);
+      if (sockets) {
+        sockets.delete(socket.id);
+        if (sockets.size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+      console.log(`📧 User ${userId} unsubscribed from notifications`);
+    });
+
+    // Mark notification as read
+    socket.on('notification-read', (data) => {
+      const { notificationId } = data;
+      console.log(`✅ Notification ${notificationId} marked as read`);
+      // Emit to all user's sockets
+      if (userId && userSockets.has(userId)) {
+        userSockets.get(userId).forEach(socketId => {
+          io.to(socketId).emit('notification-read', { notificationId });
+        });
+      }
+    });
 
     // Get rooms list
     socket.on('get-rooms', () => {
@@ -186,6 +238,15 @@ app.prepare().then(() => {
     socket.on('disconnect', () => {
       console.log('🔌 Client disconnected:', socket.id);
       
+      // Remove from notification subscriptions
+      const userId = socket.handshake.auth?.userId;
+      if (userId && userSockets.has(userId)) {
+        userSockets.get(userId).delete(socket.id);
+        if (userSockets.get(userId).size === 0) {
+          userSockets.delete(userId);
+        }
+      }
+      
       rooms.forEach((room, roomName) => {
         if (room.players.has(socket.id)) {
           room.players.delete(socket.id);
@@ -205,6 +266,47 @@ app.prepare().then(() => {
     });
   });
 
+  // Helper function to broadcast notifications to specific users
+  // Can be called from Netlify functions or other parts of the application
+  global.broadcastNotification = function(userId, notification) {
+    if (userSockets.has(userId)) {
+      userSockets.get(userId).forEach(socketId => {
+        io.to(socketId).emit('notification', notification);
+      });
+      console.log(`📧 Notification sent to user ${userId}:`, notification.type);
+    }
+  };
+
+  // Helper function to broadcast property match to specific users
+  global.broadcastPropertyMatch = function(userId, matchData) {
+    if (userSockets.has(userId)) {
+      userSockets.get(userId).forEach(socketId => {
+        io.to(socketId).emit('property-match', matchData);
+      });
+      console.log(`🎯 Property match sent to user ${userId}`);
+    }
+  };
+
+  // Helper function to broadcast price changes
+  global.broadcastPriceChange = function(userId, priceChangeData) {
+    if (userSockets.has(userId)) {
+      userSockets.get(userId).forEach(socketId => {
+        io.to(socketId).emit('price-change', priceChangeData);
+      });
+      console.log(`💰 Price change sent to user ${userId}`);
+    }
+  };
+
+  // Helper function to broadcast new property
+  global.broadcastNewProperty = function(userId, propertyData) {
+    if (userSockets.has(userId)) {
+      userSockets.get(userId).forEach(socketId => {
+        io.to(socketId).emit('new-property', propertyData);
+      });
+      console.log(`🆕 New property sent to user ${userId}`);
+    }
+  };
+
   httpServer
     .once('error', (err) => {
       console.error(err);
@@ -213,5 +315,6 @@ app.prepare().then(() => {
     .listen(port, () => {
       console.log(`✨ Ready on http://${hostname}:${port}`);
       console.log(`🎮 Socket.IO server ready for Lead City multiplayer`);
+      console.log(`📧 Socket.IO server ready for real-time notifications`);
     });
 });
