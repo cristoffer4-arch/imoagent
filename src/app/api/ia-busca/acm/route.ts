@@ -57,15 +57,19 @@ export async function POST(request: NextRequest) {
     const minPrice = Math.min(...comparablePrices, property.price_main) * 0.95;
     const maxPrice = Math.max(...comparablePrices, property.price_main) * 1.05;
 
+    // Sanitize property data to prevent injection
+    const sanitize = (str: string | undefined) => 
+      str ? str.replace(/[<>]/g, '').trim() : 'N/A';
+
     // Generate market analysis (mock)
     const marketAnalysis = `
-Análise Comparativa de Mercado para ${property.typology} em ${property.concelho}
+Análise Comparativa de Mercado para ${sanitize(property.typology)} em ${sanitize(property.concelho)}
 
 Propriedade Analisada:
-- Tipologia: ${property.typology}
+- Tipologia: ${sanitize(property.typology)}
 - Área: ${property.area_m2}m²
 - Preço Atual: €${property.price_main.toLocaleString('pt-PT')}
-- Localização: ${property.freguesia}, ${property.concelho}
+- Localização: ${sanitize(property.freguesia)}, ${sanitize(property.concelho)}
 
 Comparáveis Encontrados: ${comparables.length}
 

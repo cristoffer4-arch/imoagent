@@ -64,7 +64,8 @@ export function calculateAngariaScore(property: Property): number {
   const particularScore = calculateParticularSignal(property);
   totalScore += particularScore * weights.particularSignal;
 
-  return Math.round(totalScore * 100) / 100;
+  // Return final score (0-100 scale, rounded to integer)
+  return Math.round(totalScore);
 }
 
 /**
@@ -91,6 +92,12 @@ export function calculateVendaScore(
     quality: 0.10,
     logistics: 0.10,
   };
+  
+  // Validate weights sum to 1.0
+  const weightSum = Object.values(weights).reduce((sum, w) => sum + w, 0);
+  if (Math.abs(weightSum - 1.0) > 0.001) {
+    console.warn(`Venda score weights sum to ${weightSum}, expected 1.0`);
+  }
 
   // 1. Buyer Fit Score (35%)
   const buyerFitScore = buyer

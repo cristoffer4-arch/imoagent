@@ -15,21 +15,19 @@ export async function GET(request: NextRequest) {
     const mode = (searchParams.get('mode') || 'angariacao') as 'angariacao' | 'venda';
     const concelho = searchParams.get('concelho') || undefined;
     const typology = searchParams.get('typology')?.split(',') || undefined;
-    const priceMin = searchParams.get('priceMin')
-      ? parseFloat(searchParams.get('priceMin')!)
-      : undefined;
-    const priceMax = searchParams.get('priceMax')
-      ? parseFloat(searchParams.get('priceMax')!)
-      : undefined;
-    const areaMin = searchParams.get('areaMin')
-      ? parseFloat(searchParams.get('areaMin')!)
-      : undefined;
-    const areaMax = searchParams.get('areaMax')
-      ? parseFloat(searchParams.get('areaMax')!)
-      : undefined;
-    const minScore = searchParams.get('minScore')
-      ? parseFloat(searchParams.get('minScore')!)
-      : undefined;
+    
+    // Safely parse numeric parameters with validation
+    const parseNumeric = (value: string | null): number | undefined => {
+      if (!value) return undefined;
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? undefined : parsed;
+    };
+    
+    const priceMin = parseNumeric(searchParams.get('priceMin'));
+    const priceMax = parseNumeric(searchParams.get('priceMax'));
+    const areaMin = parseNumeric(searchParams.get('areaMin'));
+    const areaMax = parseNumeric(searchParams.get('areaMax'));
+    const minScore = parseNumeric(searchParams.get('minScore'));
 
     // Generate mock properties (in production, query from database)
     let properties = generateMockProperties();

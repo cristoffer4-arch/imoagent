@@ -231,7 +231,9 @@ ALTER TABLE ia_alerts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE acm_reports ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
-CREATE POLICY "Users can view properties" ON property_entities FOR SELECT USING (true);
+CREATE POLICY "Authenticated users can view properties" ON property_entities FOR SELECT USING (
+  auth.uid() IS NOT NULL
+);
 CREATE POLICY "Users can view their opportunities" ON ia_opportunities FOR SELECT USING (auth.uid()::text = owner_user_id::text OR auth.uid()::text = tenant_id::text);
 CREATE POLICY "Users can create opportunities" ON ia_opportunities FOR INSERT WITH CHECK (auth.uid()::text = tenant_id::text);
 CREATE POLICY "Users can manage their alerts" ON ia_alerts FOR ALL USING (auth.uid()::text = user_id::text);

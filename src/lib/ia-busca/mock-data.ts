@@ -293,7 +293,8 @@ export function generateMockProperties(): Property[] {
  * Gera uma única propriedade mock
  */
 export function generateSingleMockProperty(): Property {
-  return generateMockProperty(Date.now());
+  // Use Math.random to generate a unique-ish index
+  return generateMockProperty(Math.floor(Math.random() * 1000000));
 }
 
 /**

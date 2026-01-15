@@ -82,7 +82,8 @@ export class DeduplicationEngine {
     const typologyScore = prop1.typology === prop2.typology ? 100 : 0;
     totalScore += typologyScore * 0.1;
 
-    return Math.min(totalScore / maxScore, 1);
+    // totalScore is already a percentage (0-100), normalize to 0-1
+    return Math.min(totalScore / 100, 1);
   }
 
   /**

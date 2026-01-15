@@ -205,9 +205,17 @@ export function SearchFiltersComponent({
 
           {/* Clear Filters */}
           <button
-            onClick={() =>
-              onChange({ mode: filters.mode, typology: [], min_score: 0 })
-            }
+            onClick={() => {
+              const clearedFilters: SearchFilters = {
+                mode: filters.mode,
+                typology: [],
+                min_score: 0,
+                price_range: undefined,
+                area_range: undefined,
+                location: undefined,
+              };
+              onChange(clearedFilters);
+            }}
             className="w-full px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 transition"
           >
             Limpar Filtros

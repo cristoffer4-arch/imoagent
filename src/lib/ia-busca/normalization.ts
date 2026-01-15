@@ -50,7 +50,8 @@ export class NormalizationService {
       if (num >= 5) return 'T5+';
     }
     
-    return 'T2'; // default
+    console.warn(`Unable to normalize typology from: "${text}"`);
+    return 'T1'; // default fallback
   }
 
   /**
