@@ -355,7 +355,7 @@ export class PortalAggregator {
     return {
       propertyType: query.filters.propertyType,
       transactionType,
-      district: query.filters.district,
+      district: query.filters.distrito,
       concelho: query.filters.concelho,
       minPrice: query.filters.minPrice,
       maxPrice: query.filters.maxPrice,
