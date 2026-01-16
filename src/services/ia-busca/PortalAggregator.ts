@@ -346,24 +346,168 @@ export class PortalAggregator {
    * Builds Casafari filters from SearchQuery
    */
   private buildCasafariFilters(query: SearchQuery): CasafariSearchFilters {
+    const { filters } = query;
+    
     // Map transaction type to Casafari format
     let transactionType: 'sale' | 'rent' | undefined;
-    if (query.filters.transactionType) {
-      transactionType = query.filters.transactionType.toLowerCase() as 'sale' | 'rent';
+    if (filters.transactionType) {
+      transactionType = filters.transactionType.toLowerCase() as 'sale' | 'rent';
     }
 
+    // Map custom location boundary
+    let customLocationBoundary: CasafariSearchFilters['custom_location_boundary'];
+    if (filters.customLocationBoundary) {
+      if (filters.customLocationBoundary.type === 'circle' && 
+          filters.customLocationBoundary.center && 
+          filters.customLocationBoundary.radius) {
+        customLocationBoundary = {
+          type: 'circle',
+          center: filters.customLocationBoundary.center,
+          radius: filters.customLocationBoundary.radius,
+        };
+      } else if (filters.customLocationBoundary.type === 'polygon' && 
+                 filters.customLocationBoundary.coordinates) {
+        customLocationBoundary = {
+          type: 'polygon',
+          coordinates: filters.customLocationBoundary.coordinates,
+        };
+      }
+    }
+
+    // Map characteristics (must_have/exclude)
+    let characteristics: CasafariSearchFilters['characteristics'];
+    if (filters.mustHaveFeatures || filters.excludeFeatures) {
+      characteristics = {
+        must_have: filters.mustHaveFeatures,
+        exclude: filters.excludeFeatures,
+      };
+    }
+
+    // Map energy ratings to typed array
+    let energyRatings: CasafariSearchFilters['energy_ratings'];
+    if (filters.energyRatings) {
+      energyRatings = filters.energyRatings as Array<'A+' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H'>;
+    }
+
+    // Map conditions to typed array
+    let conditions: CasafariSearchFilters['conditions'];
+    if (filters.condition) {
+      conditions = filters.condition as Array<'used' | 'ruin' | 'very-good' | 'new' | 'other'>;
+    }
+
+    // Map floors to typed array
+    let floors: CasafariSearchFilters['floors'];
+    if (filters.floors) {
+      floors = filters.floors as Array<'no_floor' | 'ground' | 'middle' | 'top'>;
+    }
+
+    // Map views to typed array
+    let viewTypes: CasafariSearchFilters['view_types'];
+    if (filters.views) {
+      viewTypes = filters.views as Array<'water' | 'landscape' | 'city' | 'golf' | 'park'>;
+    }
+
+    // Map directions to typed array
+    let directions: CasafariSearchFilters['directions'];
+    if (filters.directions) {
+      directions = filters.directions as Array<'north' | 'south' | 'east' | 'west'>;
+    }
+
+    // Map orientation
+    let orientations: CasafariSearchFilters['orientations'];
+    if (filters.orientation) {
+      orientations = filters.orientation as 'exterior' | 'interior';
+    }
+
+    // Map dates to ISO strings
+    const toISOString = (date?: Date) => date?.toISOString();
+
     return {
-      propertyType: query.filters.propertyType,
+      // Basic location filters
+      district: filters.distrito,
+      municipality: filters.concelho,
+      parish: filters.freguesia,
+      postalCode: filters.postalCode,
+      location_ids: filters.locationIds,
+      custom_location_boundary: customLocationBoundary,
+      
+      // Property type and transaction
+      propertyType: filters.propertyType,
       transactionType,
-      district: query.filters.distrito,
-      concelho: query.filters.concelho,
-      minPrice: query.filters.minPrice,
-      maxPrice: query.filters.maxPrice,
-      minArea: query.filters.minArea,
-      maxArea: query.filters.maxArea,
-      bedrooms: query.filters.bedrooms,
+      
+      // Price filters
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      price_per_sqm_from: filters.minPricePerSqm,
+      price_per_sqm_to: filters.maxPricePerSqm,
+      
+      // Area filters
+      minArea: filters.minArea,
+      maxArea: filters.maxArea,
+      plot_area_from: filters.minPlotArea,
+      plot_area_to: filters.maxPlotArea,
+      
+      // Bedrooms and bathrooms
+      bedrooms: filters.bedrooms,
+      minBedrooms: filters.minBedrooms,
+      maxBedrooms: filters.maxBedrooms,
+      bathrooms_from: filters.minBathrooms,
+      bathrooms_to: filters.maxBathrooms,
+      
+      // Floor information
+      floors,
+      floor_number: filters.floorNumbers,
+      
+      // Construction year
+      construction_year_from: filters.minConstructionYear,
+      construction_year_to: filters.maxConstructionYear,
+      
+      // Market metrics
+      days_on_market_from: filters.minDaysOnMarket,
+      days_on_market_to: filters.maxDaysOnMarket,
+      gross_yield_from: filters.minGrossYield,
+      gross_yield_to: filters.maxGrossYield,
+      
+      // Views, directions and orientation
+      view_types: viewTypes,
+      directions,
+      orientations,
+      
+      // Property characteristics
+      characteristics,
+      energy_ratings: energyRatings,
+      conditions,
+      
+      // Business filters
+      private: filters.privateListings,
+      auction: filters.auctionOnly,
+      bank: filters.bankOwned,
+      casafari_connect: filters.casafariConnect,
+      exclusive: filters.exclusiveListings,
+      with_agencies: filters.withAgencies,
+      without_agencies: filters.withoutAgencies,
+      listing_agents: filters.listingAgents,
+      ref_numbers: filters.refNumbers,
+      
+      // Date filters (advanced)
+      property_date_from: toISOString(filters.propertyDateFrom),
+      property_date_to: toISOString(filters.propertyDateTo),
+      created_date_from: toISOString(filters.createdDateFrom),
+      created_date_to: toISOString(filters.createdDateTo),
+      updated_date_from: toISOString(filters.updatedDateFrom),
+      updated_date_to: toISOString(filters.updatedDateTo),
+      
+      // Date filters (legacy - for backward compatibility)
+      publishedAfter: toISOString(filters.publishedAfter),
+      publishedBefore: toISOString(filters.publishedBefore),
+      
+      // Pagination
       page: query.page,
       perPage: query.perPage,
+      
+      // Advanced sorting
+      order: undefined, // Will be set based on sortBy if needed
+      order_by: undefined, // Will be set based on sortBy if needed
     };
   }
 

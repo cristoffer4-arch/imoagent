@@ -25,30 +25,75 @@ export interface SearchFilters {
   concelho?: string;
   freguesia?: string;
   postalCode?: string;
+  locationIds?: string[];        // Advanced: IDs específicos de localização
+  customLocationBoundary?: {     // Advanced: círculo ou polígono personalizado
+    type: 'circle' | 'polygon';
+    center?: { latitude: number; longitude: number };
+    radius?: number;
+    coordinates?: Array<{ latitude: number; longitude: number }>;
+  };
   
   // Preço
   minPrice?: number;
   maxPrice?: number;
+  minPricePerSqm?: number;       // Advanced: preço mínimo por m²
+  maxPricePerSqm?: number;       // Advanced: preço máximo por m²
   
   // Área
   minArea?: number;
   maxArea?: number;
+  minPlotArea?: number;          // Advanced: área mínima do terreno
+  maxPlotArea?: number;          // Advanced: área máxima do terreno
   
-  // Características
+  // Características - Quartos e Casas de Banho
   bedrooms?: number;
   minBedrooms?: number;
   maxBedrooms?: number;
   bathrooms?: number;
   minBathrooms?: number;
+  maxBathrooms?: number;         // Advanced: máximo de casas de banho
+  
+  // Andar
+  floors?: string[];             // Advanced: posição do andar ['ground', 'middle', 'top']
+  floorNumbers?: number[];       // Advanced: números específicos de andar
+  
+  // Ano de construção
+  minConstructionYear?: number;  // Advanced: ano mínimo de construção
+  maxConstructionYear?: number;  // Advanced: ano máximo de construção
+  
+  // Métricas de mercado
+  minDaysOnMarket?: number;      // Advanced: mínimo de dias no mercado
+  maxDaysOnMarket?: number;      // Advanced: máximo de dias no mercado
+  minGrossYield?: number;        // Advanced: rentabilidade bruta mínima (%)
+  maxGrossYield?: number;        // Advanced: rentabilidade bruta máxima (%)
+  
+  // Vistas e orientação
+  views?: string[];              // Advanced: ['water', 'landscape', 'city', 'golf', 'park']
+  directions?: string[];         // Advanced: direções cardinais ['north', 'south', 'east', 'west']
+  orientation?: string;          // Advanced: 'exterior' | 'interior'
   
   // Tipologia (formato português)
   typology?: string[];           // ['T0', 'T1', 'T2', 'T3', 'T4', 'T5+']
   
   // Características booleanas
   features?: string[];           // ['elevator', 'balcony', 'garage', ...]
+  mustHaveFeatures?: string[];   // Advanced: características obrigatórias
+  excludeFeatures?: string[];    // Advanced: características a excluir
   
   // Condição
-  condition?: string[];          // ['NEW', 'RENOVATED', 'GOOD', ...]
+  condition?: string[];          // ['NEW', 'RENOVATED', 'GOOD', ...] ou ['new', 'used', 'ruin', 'very-good', 'other']
+  energyRatings?: string[];      // Advanced: certificação energética ['A+', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+  
+  // Filtros de negócio
+  privateListings?: boolean;     // Advanced: apenas anúncios privados
+  auctionOnly?: boolean;         // Advanced: apenas leilões
+  bankOwned?: boolean;           // Advanced: apenas propriedades bancárias
+  casafariConnect?: boolean;     // Advanced: apenas Casafari Connect
+  exclusiveListings?: boolean;   // Advanced: apenas anúncios exclusivos
+  withAgencies?: string[];       // Advanced: filtrar por agências específicas
+  withoutAgencies?: string[];    // Advanced: excluir agências específicas
+  listingAgents?: string[];      // Advanced: filtrar por agentes específicos
+  refNumbers?: string[];         // Advanced: filtrar por números de referência
   
   // Portais/Fontes
   portals?: string[];            // ['Idealista', 'OLX', 'Casafari', ...]
@@ -60,6 +105,12 @@ export interface SearchFilters {
   // Temporal
   publishedAfter?: Date;         // Publicado após esta data
   publishedBefore?: Date;        // Publicado antes desta data
+  propertyDateFrom?: Date;       // Advanced: data da propriedade desde
+  propertyDateTo?: Date;         // Advanced: data da propriedade até
+  createdDateFrom?: Date;        // Advanced: data de criação desde
+  createdDateTo?: Date;          // Advanced: data de criação até
+  updatedDateFrom?: Date;        // Advanced: última atualização desde
+  updatedDateTo?: Date;          // Advanced: última atualização até
 }
 
 /**
