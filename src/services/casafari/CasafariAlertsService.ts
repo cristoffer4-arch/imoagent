@@ -434,7 +434,7 @@ export class CasafariAlertsService {
   private async makeRequest<T>(
     url: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
-    body?: any
+    body?: unknown
   ): Promise<T> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);

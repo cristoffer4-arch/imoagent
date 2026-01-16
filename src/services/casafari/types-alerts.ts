@@ -239,17 +239,15 @@ export interface CasafariAlert {
   /** What changed (for update alerts) */
   changes?: {
     field: string;
-    oldValue: any;
-    newValue: any;
+    oldValue: unknown;
+    newValue: unknown;
   }[];
   
   /** Match score (how well property matches feed criteria) */
   matchScore?: number;
   
   /** Alert metadata */
-  metadata?: {
-    [key: string]: any;
-  };
+  metadata?: Record<string, unknown>;
 }
 
 /**
