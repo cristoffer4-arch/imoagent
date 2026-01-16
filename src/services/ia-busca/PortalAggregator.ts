@@ -346,24 +346,212 @@ export class PortalAggregator {
    * Builds Casafari filters from SearchQuery
    */
   private buildCasafariFilters(query: SearchQuery): CasafariSearchFilters {
+    const { filters } = query;
+    
     // Map transaction type to Casafari format
     let transactionType: 'sale' | 'rent' | undefined;
-    if (query.filters.transactionType) {
-      transactionType = query.filters.transactionType.toLowerCase() as 'sale' | 'rent';
+    if (filters.transactionType) {
+      transactionType = filters.transactionType.toLowerCase() as 'sale' | 'rent';
+    }
+
+    // Map custom location boundary
+    let customLocationBoundary: CasafariSearchFilters['custom_location_boundary'];
+    if (filters.customLocationBoundary) {
+      if (filters.customLocationBoundary.type === 'circle' && 
+          filters.customLocationBoundary.center && 
+          filters.customLocationBoundary.radius) {
+        customLocationBoundary = {
+          type: 'circle',
+          center: filters.customLocationBoundary.center,
+          radius: filters.customLocationBoundary.radius,
+        };
+      } else if (filters.customLocationBoundary.type === 'polygon' && 
+                 filters.customLocationBoundary.coordinates) {
+        customLocationBoundary = {
+          type: 'polygon',
+          coordinates: filters.customLocationBoundary.coordinates,
+        };
+      }
+    }
+
+    // Map characteristics (must_have/exclude)
+    let characteristics: CasafariSearchFilters['characteristics'];
+    if (filters.mustHaveFeatures || filters.excludeFeatures) {
+      characteristics = {
+        must_have: filters.mustHaveFeatures,
+        exclude: filters.excludeFeatures,
+      };
+    }
+
+    // Type guards for validation
+    const isValidEnergyRating = (rating: string): rating is 'A+' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' => {
+      return ['A+', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].includes(rating);
+    };
+
+    const isValidCondition = (condition: string): condition is 'used' | 'ruin' | 'very-good' | 'new' | 'other' => {
+      return ['used', 'ruin', 'very-good', 'new', 'other'].includes(condition);
+    };
+
+    const isValidFloor = (floor: string): floor is 'no_floor' | 'ground' | 'middle' | 'top' => {
+      return ['no_floor', 'ground', 'middle', 'top'].includes(floor);
+    };
+
+    const isValidView = (view: string): view is 'water' | 'landscape' | 'city' | 'golf' | 'park' => {
+      return ['water', 'landscape', 'city', 'golf', 'park'].includes(view);
+    };
+
+    const isValidDirection = (direction: string): direction is 'north' | 'south' | 'east' | 'west' => {
+      return ['north', 'south', 'east', 'west'].includes(direction);
+    };
+
+    // Map energy ratings with validation
+    let energyRatings: CasafariSearchFilters['energy_ratings'];
+    if (filters.energyRatings) {
+      energyRatings = filters.energyRatings.filter(isValidEnergyRating);
+    }
+
+    // Map conditions with validation
+    let conditions: CasafariSearchFilters['conditions'];
+    if (filters.condition) {
+      conditions = filters.condition.filter(isValidCondition);
+    }
+
+    // Map floors with validation
+    let floors: CasafariSearchFilters['floors'];
+    if (filters.floors) {
+      floors = filters.floors.filter(isValidFloor);
+    }
+
+    // Map views with validation
+    let viewTypes: CasafariSearchFilters['view_types'];
+    if (filters.views) {
+      viewTypes = filters.views.filter(isValidView);
+    }
+
+    // Map directions with validation
+    let directions: CasafariSearchFilters['directions'];
+    if (filters.directions) {
+      directions = filters.directions.filter(isValidDirection);
+    }
+
+    // Map orientation with validation
+    let orientations: CasafariSearchFilters['orientations'];
+    if (filters.orientation && (filters.orientation === 'exterior' || filters.orientation === 'interior')) {
+      orientations = filters.orientation;
+    }
+
+    // Map dates to ISO strings
+    const toISOString = (date?: Date) => date?.toISOString();
+
+    // Map advanced sorting from SearchQuery.sortBy to Casafari format
+    let order: CasafariSearchFilters['order'];
+    let orderBy: CasafariSearchFilters['order_by'];
+    
+    if (query.sortBy) {
+      // Extract order direction from sortBy (e.g., PRICE_ASC -> asc)
+      if (query.sortBy.includes('ASC')) {
+        order = 'asc';
+      } else if (query.sortBy.includes('DESC')) {
+        order = 'desc';
+      }
+      
+      // Map sortBy field to Casafari order_by
+      if (query.sortBy.includes('PRICE')) {
+        orderBy = 'price';
+      } else if (query.sortBy.includes('AREA')) {
+        orderBy = 'total_area';
+      } else if (query.sortBy === 'RECENT') {
+        orderBy = 'last_update';
+        order = 'desc';
+      }
     }
 
     return {
-      propertyType: query.filters.propertyType,
+      // Basic location filters
+      district: filters.distrito,
+      municipality: filters.concelho,
+      parish: filters.freguesia,
+      postalCode: filters.postalCode,
+      location_ids: filters.locationIds,
+      custom_location_boundary: customLocationBoundary,
+      
+      // Property type and transaction
+      propertyType: filters.propertyType,
       transactionType,
-      district: query.filters.distrito,
-      concelho: query.filters.concelho,
-      minPrice: query.filters.minPrice,
-      maxPrice: query.filters.maxPrice,
-      minArea: query.filters.minArea,
-      maxArea: query.filters.maxArea,
-      bedrooms: query.filters.bedrooms,
+      
+      // Price filters
+      minPrice: filters.minPrice,
+      maxPrice: filters.maxPrice,
+      price_per_sqm_from: filters.minPricePerSqm,
+      price_per_sqm_to: filters.maxPricePerSqm,
+      
+      // Area filters
+      minArea: filters.minArea,
+      maxArea: filters.maxArea,
+      plot_area_from: filters.minPlotArea,
+      plot_area_to: filters.maxPlotArea,
+      
+      // Bedrooms and bathrooms
+      bedrooms: filters.bedrooms,
+      minBedrooms: filters.minBedrooms,
+      maxBedrooms: filters.maxBedrooms,
+      bathrooms_from: filters.minBathrooms,
+      bathrooms_to: filters.maxBathrooms,
+      
+      // Floor information
+      floors,
+      floor_number: filters.floorNumbers,
+      
+      // Construction year
+      construction_year_from: filters.minConstructionYear,
+      construction_year_to: filters.maxConstructionYear,
+      
+      // Market metrics
+      days_on_market_from: filters.minDaysOnMarket,
+      days_on_market_to: filters.maxDaysOnMarket,
+      gross_yield_from: filters.minGrossYield,
+      gross_yield_to: filters.maxGrossYield,
+      
+      // Views, directions and orientation
+      view_types: viewTypes,
+      directions,
+      orientations,
+      
+      // Property characteristics
+      characteristics,
+      energy_ratings: energyRatings,
+      conditions,
+      
+      // Business filters
+      private: filters.privateListings,
+      auction: filters.auctionOnly,
+      bank: filters.bankOwned,
+      casafari_connect: filters.casafariConnect,
+      exclusive: filters.exclusiveListings,
+      with_agencies: filters.withAgencies,
+      without_agencies: filters.withoutAgencies,
+      listing_agents: filters.listingAgents,
+      ref_numbers: filters.refNumbers,
+      
+      // Date filters (advanced)
+      property_date_from: toISOString(filters.propertyDateFrom),
+      property_date_to: toISOString(filters.propertyDateTo),
+      created_date_from: toISOString(filters.createdDateFrom),
+      created_date_to: toISOString(filters.createdDateTo),
+      updated_date_from: toISOString(filters.updatedDateFrom),
+      updated_date_to: toISOString(filters.updatedDateTo),
+      
+      // Date filters (legacy - for backward compatibility)
+      publishedAfter: toISOString(filters.publishedAfter),
+      publishedBefore: toISOString(filters.publishedBefore),
+      
+      // Pagination
       page: query.page,
       perPage: query.perPage,
+      
+      // Advanced sorting
+      order,
+      order_by: orderBy,
     };
   }
 
