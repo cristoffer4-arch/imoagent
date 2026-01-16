@@ -2,6 +2,20 @@
 
 Integração completa com a API Casafari para busca e obtenção de propriedades imobiliárias em Portugal.
 
+## 🎉 Fase 1 Implementada - Filtros Avançados
+
+✨ **NOVO**: Suporte completo para todos os 15+ filtros avançados da API Casafari!
+
+Esta implementação inclui:
+- 📊 **6 ranges adicionais**: bathrooms, construction_year, plot_area, price_per_sqm, days_on_market, gross_yield
+- 🏠 **8 características de imóveis**: floors, floor_number, views, directions, orientation, conditions, energy_ratings, characteristics
+- 💼 **9 filtros de negócio**: private, auction, bank, casafari_connect, exclusive, agencies, agents, ref_numbers
+- 📍 **Localização avançada**: location_ids, custom_location_boundary (circle/polygon)
+- 📅 **6 filtros de data**: property_date, created_date, updated_date (from/to)
+- 🔄 **Ordenação avançada**: 7 campos de ordenação (price, price_per_sqm, total_area, bedrooms, construction_year, last_update, time_on_market)
+
+**Cobertura de testes**: 54 testes (23 novos para filtros avançados), 100% de aprovação ✅
+
 ## 📋 Visão Geral
 
 O **CasafariService** fornece uma interface TypeScript type-safe para a API Casafari, com:
@@ -11,7 +25,7 @@ O **CasafariService** fornece uma interface TypeScript type-safe para a API Casa
 - ✅ **Transformação automática** para `PropertyCanonicalModel`
 - ✅ **Tratamento de erros** personalizado
 - ✅ **Suporte a paginação e filtros avançados**
-- ✅ **100% testado** (25 testes unitários)
+- ✅ **100% testado** (54 testes unitários)
 
 ## 🚀 Início Rápido
 
@@ -116,6 +130,8 @@ const result = await casafari.searchProperties(
 
 ### Filtros Disponíveis
 
+#### Filtros Básicos
+
 | Filtro | Tipo | Descrição |
 |--------|------|-----------|
 | `country` | `string` | País (ex: "Portugal") |
@@ -128,11 +144,195 @@ const result = await casafari.searchProperties(
 | `minPrice` / `maxPrice` | `number` | Faixa de preço em EUR |
 | `minArea` / `maxArea` | `number` | Faixa de área em m² |
 | `minBedrooms` / `maxBedrooms` | `number` | Número de quartos |
-| `minBathrooms` | `number` | Número mínimo de casas de banho |
+| `minBathrooms` / `maxBathrooms` | `number` | Número de casas de banho |
 | `page` | `number` | Página (default: 1) |
 | `limit` | `number` | Itens por página (default: 10) |
 | `sortBy` | `string` | Campo de ordenação |
 | `sortOrder` | `'asc' \| 'desc'` | Direção da ordenação |
+
+#### Filtros Avançados (Fase 1 ✨ NEW)
+
+##### Ranges Adicionais
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `bathrooms_from` / `bathrooms_to` | `number` | Faixa de casas de banho |
+| `construction_year_from` / `construction_year_to` | `number` | Faixa de ano de construção |
+| `plot_area_from` / `plot_area_to` | `number` | Faixa de área de terreno (m²) |
+| `price_per_sqm_from` / `price_per_sqm_to` | `number` | Faixa de preço por m² (EUR/m²) |
+| `days_on_market_from` / `days_on_market_to` | `number` | Faixa de dias no mercado |
+| `gross_yield_from` / `gross_yield_to` | `number` | Faixa de rentabilidade bruta (%) |
+
+##### Características do Imóvel
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `floors` | `Array<'no_floor' \| 'ground' \| 'middle' \| 'top'>` | Posição do andar |
+| `floor_number` | `number[]` | Números específicos de andar |
+| `views` | `Array<'water' \| 'landscape' \| 'city' \| 'golf' \| 'park'>` | Tipos de vista |
+| `directions` | `Array<'north' \| 'south' \| 'east' \| 'west'>` | Orientação solar |
+| `orientation` | `'exterior' \| 'interior'` | Orientação do imóvel |
+| `characteristics` | `{ must_have?: string[], exclude?: string[] }` | Características obrigatórias/excluídas |
+| `conditions` | `Array<'used' \| 'ruin' \| 'very-good' \| 'new' \| 'other'>` | Estado do imóvel |
+| `energy_ratings` | `Array<'A+' \| 'A' \| 'B' \| 'C' \| 'D' \| 'E' \| 'F' \| 'G' \| 'H'>` | Certificação energética |
+
+##### Filtros de Negócio
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `private` | `boolean` | Apenas anúncios privados |
+| `auction` | `boolean` | Apenas leilões |
+| `bank` | `boolean` | Apenas propriedades bancárias |
+| `casafari_connect` | `boolean` | Apenas Casafari Connect |
+| `exclusive` | `boolean` | Apenas anúncios exclusivos |
+| `with_agencies` | `string[]` | Filtrar por agências específicas (IDs) |
+| `without_agencies` | `string[]` | Excluir agências específicas (IDs) |
+| `listing_agents` | `string[]` | Filtrar por agentes específicos (IDs) |
+| `ref_numbers` | `string[]` | Filtrar por números de referência |
+
+##### Localização Avançada
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `location_ids` | `string[]` | IDs específicos de localização |
+| `custom_location_boundary` | `CasafariLocationBoundary` | Círculo ou polígono personalizado |
+
+**Exemplo de custom_location_boundary (círculo):**
+```typescript
+{
+  type: 'circle',
+  center: { latitude: 38.7223, longitude: -9.1393 },
+  radius: 5000 // metros
+}
+```
+
+**Exemplo de custom_location_boundary (polígono):**
+```typescript
+{
+  type: 'polygon',
+  coordinates: [
+    { latitude: 38.7223, longitude: -9.1393 },
+    { latitude: 38.7323, longitude: -9.1493 },
+    { latitude: 38.7423, longitude: -9.1593 }
+  ]
+}
+```
+
+##### Filtros de Data Avançados
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `property_date_from` / `property_date_to` | `string` (ISO) | Faixa de data da propriedade |
+| `created_date_from` / `created_date_to` | `string` (ISO) | Faixa de data de criação |
+| `updated_date_from` / `updated_date_to` | `string` (ISO) | Faixa de última atualização |
+
+##### Ordenação Avançada
+| Filtro | Tipo | Descrição |
+|--------|------|-----------|
+| `order` | `'asc' \| 'desc'` | Ordem de classificação |
+| `order_by` | `CasafariSortBy` | Campo de ordenação avançado |
+
+**Valores de order_by:**
+- `price` - Preço
+- `price_per_sqm` - Preço por m²
+- `total_area` - Área total
+- `bedrooms` - Número de quartos
+- `construction_year` - Ano de construção
+- `last_update` - Última atualização
+- `time_on_market` - Tempo no mercado
+
+### Exemplos de Uso dos Filtros Avançados
+
+#### Exemplo 1: Busca com Múltiplos Filtros Avançados
+```typescript
+const result = await casafari.searchProperties(
+  {
+    // Localização
+    district: 'Lisboa',
+    location_ids: ['loc-cascais-1', 'loc-oeiras-2'],
+    
+    // Características
+    minBedrooms: 2,
+    bathrooms_from: 2,
+    bathrooms_to: 3,
+    
+    // Ano de construção recente
+    construction_year_from: 2015,
+    construction_year_to: 2023,
+    
+    // Vista e orientação
+    views: ['water', 'city'],
+    directions: ['south', 'west'],
+    orientation: 'exterior',
+    
+    // Eficiência energética
+    energy_ratings: ['A+', 'A', 'B'],
+    
+    // Preço por m² competitivo
+    price_per_sqm_from: 2500,
+    price_per_sqm_to: 4000,
+    
+    // Ordenação
+    order: 'asc',
+    order_by: 'price_per_sqm',
+    
+    // Paginação
+    page: 1,
+    limit: 20,
+  },
+  'tenant-123'
+);
+```
+
+#### Exemplo 2: Busca de Oportunidades de Investimento
+```typescript
+const result = await casafari.searchProperties(
+  {
+    // Localização com raio personalizado
+    custom_location_boundary: {
+      type: 'circle',
+      center: { latitude: 38.7223, longitude: -9.1393 },
+      radius: 3000, // 3km de raio
+    },
+    
+    // Métricas de investimento
+    gross_yield_from: 5.0, // Rentabilidade mínima de 5%
+    days_on_market_from: 30, // No mercado há mais de 30 dias
+    
+    // Filtros de negócio
+    bank: true, // Apenas propriedades bancárias
+    auction: false, // Excluir leilões
+    
+    // Ordenar por rentabilidade
+    order: 'desc',
+    order_by: 'gross_yield',
+  },
+  'tenant-123'
+);
+```
+
+#### Exemplo 3: Busca com Características Específicas
+```typescript
+const result = await casafari.searchProperties(
+  {
+    // Andar e posição
+    floors: ['ground', 'top'], // Apenas rés-do-chão ou último andar
+    floor_number: [0, 1, 5, 6], // Andares específicos
+    
+    // Características obrigatórias e exclusões
+    characteristics: {
+      must_have: ['pool', 'garage', 'elevator'],
+      exclude: ['pet_friendly', 'smoker_friendly'],
+    },
+    
+    // Estado
+    conditions: ['new', 'very-good'],
+    
+    // Área de terreno para jardim
+    plot_area_from: 100,
+    
+    // Propriedades exclusivas
+    exclusive: true,
+    private: true,
+  },
+  'tenant-123'
+);
+```
 
 ## 🔄 Cache
 
