@@ -806,5 +806,119 @@ describe('Casafari Advanced Filters - Phase 1', () => {
         undefined
       );
     });
+
+    it('should map sortBy to advanced sorting fields', async () => {
+      const query: SearchQuery = {
+        mode: 'VENDA' as SearchMode,
+        filters: {
+          minPrice: 100000,
+        },
+        sortBy: 'PRICE_ASC' as SearchSortBy,
+        page: 1,
+        perPage: 10,
+        tenantId: 'test-tenant',
+      };
+
+      const mockListProperties = jest.spyOn(casafariService, 'listProperties');
+      mockListProperties.mockResolvedValue({
+        properties: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      });
+
+      await aggregator.aggregate(query, { enablePortals: false, enableCRM: false });
+
+      expect(mockListProperties).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: 'asc',
+          order_by: 'price',
+        }),
+        'test-tenant',
+        undefined
+      );
+    });
+
+    it('should map sortBy DESC to descending order', async () => {
+      const query: SearchQuery = {
+        mode: 'VENDA' as SearchMode,
+        filters: {},
+        sortBy: 'PRICE_DESC' as SearchSortBy,
+        page: 1,
+        perPage: 10,
+        tenantId: 'test-tenant',
+      };
+
+      const mockListProperties = jest.spyOn(casafariService, 'listProperties');
+      mockListProperties.mockResolvedValue({
+        properties: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      });
+
+      await aggregator.aggregate(query, { enablePortals: false, enableCRM: false });
+
+      expect(mockListProperties).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: 'desc',
+          order_by: 'price',
+        }),
+        'test-tenant',
+        undefined
+      );
+    });
+
+    it('should map sortBy AREA to total_area', async () => {
+      const query: SearchQuery = {
+        mode: 'VENDA' as SearchMode,
+        filters: {},
+        sortBy: 'AREA_DESC' as SearchSortBy,
+        page: 1,
+        perPage: 10,
+        tenantId: 'test-tenant',
+      };
+
+      const mockListProperties = jest.spyOn(casafariService, 'listProperties');
+      mockListProperties.mockResolvedValue({
+        properties: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      });
+
+      await aggregator.aggregate(query, { enablePortals: false, enableCRM: false });
+
+      expect(mockListProperties).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: 'desc',
+          order_by: 'total_area',
+        }),
+        'test-tenant',
+        undefined
+      );
+    });
+
+    it('should map sortBy RECENT to last_update desc', async () => {
+      const query: SearchQuery = {
+        mode: 'VENDA' as SearchMode,
+        filters: {},
+        sortBy: 'RECENT' as SearchSortBy,
+        page: 1,
+        perPage: 10,
+        tenantId: 'test-tenant',
+      };
+
+      const mockListProperties = jest.spyOn(casafariService, 'listProperties');
+      mockListProperties.mockResolvedValue({
+        properties: [],
+        pagination: { page: 1, limit: 10, total: 0, totalPages: 0 },
+      });
+
+      await aggregator.aggregate(query, { enablePortals: false, enableCRM: false });
+
+      expect(mockListProperties).toHaveBeenCalledWith(
+        expect.objectContaining({
+          order: 'desc',
+          order_by: 'last_update',
+        }),
+        'test-tenant',
+        undefined
+      );
+    });
   });
 });

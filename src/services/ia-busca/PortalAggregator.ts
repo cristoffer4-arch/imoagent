@@ -383,44 +383,88 @@ export class PortalAggregator {
       };
     }
 
-    // Map energy ratings to typed array
+    // Type guards for validation
+    const isValidEnergyRating = (rating: string): rating is 'A+' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' => {
+      return ['A+', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'].includes(rating);
+    };
+
+    const isValidCondition = (condition: string): condition is 'used' | 'ruin' | 'very-good' | 'new' | 'other' => {
+      return ['used', 'ruin', 'very-good', 'new', 'other'].includes(condition);
+    };
+
+    const isValidFloor = (floor: string): floor is 'no_floor' | 'ground' | 'middle' | 'top' => {
+      return ['no_floor', 'ground', 'middle', 'top'].includes(floor);
+    };
+
+    const isValidView = (view: string): view is 'water' | 'landscape' | 'city' | 'golf' | 'park' => {
+      return ['water', 'landscape', 'city', 'golf', 'park'].includes(view);
+    };
+
+    const isValidDirection = (direction: string): direction is 'north' | 'south' | 'east' | 'west' => {
+      return ['north', 'south', 'east', 'west'].includes(direction);
+    };
+
+    // Map energy ratings with validation
     let energyRatings: CasafariSearchFilters['energy_ratings'];
     if (filters.energyRatings) {
-      energyRatings = filters.energyRatings as Array<'A+' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H'>;
+      energyRatings = filters.energyRatings.filter(isValidEnergyRating);
     }
 
-    // Map conditions to typed array
+    // Map conditions with validation
     let conditions: CasafariSearchFilters['conditions'];
     if (filters.condition) {
-      conditions = filters.condition as Array<'used' | 'ruin' | 'very-good' | 'new' | 'other'>;
+      conditions = filters.condition.filter(isValidCondition);
     }
 
-    // Map floors to typed array
+    // Map floors with validation
     let floors: CasafariSearchFilters['floors'];
     if (filters.floors) {
-      floors = filters.floors as Array<'no_floor' | 'ground' | 'middle' | 'top'>;
+      floors = filters.floors.filter(isValidFloor);
     }
 
-    // Map views to typed array
+    // Map views with validation
     let viewTypes: CasafariSearchFilters['view_types'];
     if (filters.views) {
-      viewTypes = filters.views as Array<'water' | 'landscape' | 'city' | 'golf' | 'park'>;
+      viewTypes = filters.views.filter(isValidView);
     }
 
-    // Map directions to typed array
+    // Map directions with validation
     let directions: CasafariSearchFilters['directions'];
     if (filters.directions) {
-      directions = filters.directions as Array<'north' | 'south' | 'east' | 'west'>;
+      directions = filters.directions.filter(isValidDirection);
     }
 
-    // Map orientation
+    // Map orientation with validation
     let orientations: CasafariSearchFilters['orientations'];
-    if (filters.orientation) {
-      orientations = filters.orientation as 'exterior' | 'interior';
+    if (filters.orientation && (filters.orientation === 'exterior' || filters.orientation === 'interior')) {
+      orientations = filters.orientation;
     }
 
     // Map dates to ISO strings
     const toISOString = (date?: Date) => date?.toISOString();
+
+    // Map advanced sorting from SearchQuery.sortBy to Casafari format
+    let order: CasafariSearchFilters['order'];
+    let orderBy: CasafariSearchFilters['order_by'];
+    
+    if (query.sortBy) {
+      // Extract order direction from sortBy (e.g., PRICE_ASC -> asc)
+      if (query.sortBy.includes('ASC')) {
+        order = 'asc';
+      } else if (query.sortBy.includes('DESC')) {
+        order = 'desc';
+      }
+      
+      // Map sortBy field to Casafari order_by
+      if (query.sortBy.includes('PRICE')) {
+        orderBy = 'price';
+      } else if (query.sortBy.includes('AREA')) {
+        orderBy = 'total_area';
+      } else if (query.sortBy === 'RECENT') {
+        orderBy = 'last_update';
+        order = 'desc';
+      }
+    }
 
     return {
       // Basic location filters
@@ -506,8 +550,8 @@ export class PortalAggregator {
       perPage: query.perPage,
       
       // Advanced sorting
-      order: undefined, // Will be set based on sortBy if needed
-      order_by: undefined, // Will be set based on sortBy if needed
+      order,
+      order_by: orderBy,
     };
   }
 
