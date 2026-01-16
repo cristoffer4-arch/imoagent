@@ -3,6 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import socketIOClient from 'socket.io-client';
 import { createClient } from '@/lib/supabase/client';
+import Link from 'next/link';
+import {
+  getOrCreatePlayer,
+  saveMatch,
+  checkAndUnlockAchievements,
+  type LeadCityPlayer,
+  type LeadCityPlayerAchievement,
+} from '@/lib/services/leadcity-service';
 
 export function LeadCityGame() {
   // Note: Using 'any' for Phaser.Game and Socket types to avoid complex type conflicts
@@ -11,8 +19,11 @@ export function LeadCityGame() {
   const socketRef = useRef<any | null>(null);
   const [gameState, setGameState] = useState<'lobby' | 'playing' | 'finished'>('lobby');
   const [player, setPlayer] = useState<{ id: string; username: string; avatar: string } | null>(null);
+  const [leadCityPlayer, setLeadCityPlayer] = useState<LeadCityPlayer | null>(null);
   const [result, setResult] = useState<{ score: number; leads: number; distance: number } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [newAchievements, setNewAchievements] = useState<LeadCityPlayerAchievement[]>([]);
+  const [gameStartTime, setGameStartTime] = useState<number>(0);
 
   useEffect(() => {
     // Initialize Supabase client and get user
@@ -28,11 +39,21 @@ export function LeadCityGame() {
           .eq('id', user.id)
           .single();
         
+        const username = profile?.full_name || 'Consultor';
+        
         setPlayer({
           id: user.id,
-          username: profile?.full_name || 'Consultor',
+          username: username,
           avatar: '🏃'
         });
+
+        // Get or create LeadCity player
+        try {
+          const lcPlayer = await getOrCreatePlayer(user.id, username);
+          setLeadCityPlayer(lcPlayer);
+        } catch (error) {
+          console.error('Error creating LeadCity player:', error);
+        }
       } else {
         // Guest player
         setPlayer({
@@ -72,6 +93,8 @@ const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:1000
 
     setIsLoading(true);
     setGameState('playing');
+    setGameStartTime(Date.now());
+    setNewAchievements([]);
 
     try {
       // Dynamically import Phaser and game config
@@ -113,44 +136,32 @@ const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:1000
   };
 
   const saveGameResult = async (result: { score: number; leads: number; distance: number }) => {
-    if (!player || player.id.startsWith('guest-')) return;
+    if (!player || player.id.startsWith('guest-') || !leadCityPlayer) return;
 
     try {
-      const supabase = createClient();
-      
-      // Get or create leadcity_player
-      let { data: lcPlayer } = await supabase
-        .from('leadcity_players')
-        .select('*')
-        .eq('user_id', player.id)
-        .single();
-      
-      if (!lcPlayer) {
-        const { data: newPlayer } = await supabase
-          .from('leadcity_players')
-          .insert({
-            user_id: player.id,
-            username: player.username,
-            avatar: player.avatar
-          })
-          .select()
-          .single();
-        
-        lcPlayer = newPlayer;
-      }
+      // Calculate time played in seconds
+      const timePlayed = Math.floor((Date.now() - gameStartTime) / 1000);
 
-      if (lcPlayer) {
-        // Update player stats
-        await supabase
-          .from('leadcity_players')
-          .update({
-            total_matches: (lcPlayer.total_matches || 0) + 1,
-            total_score: (lcPlayer.total_score || 0) + result.score,
-            total_leads: (lcPlayer.total_leads || 0) + result.leads,
-            best_score: Math.max(lcPlayer.best_score || 0, result.score),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', lcPlayer.id);
+      // Estimate properties acquired (1 per 100 distance)
+      const propertiesAcquired = Math.floor(result.distance / 100);
+
+      // Determine if game was completed (score > 1000 or distance > 500)
+      const completed = result.score > 1000 || result.distance > 500;
+
+      // Save match using leadCityService
+      await saveMatch(leadCityPlayer.id, {
+        score: result.score,
+        leads_captured: result.leads,
+        properties_acquired: propertiesAcquired,
+        time_played: timePlayed,
+        difficulty: 'normal',
+        completed: completed,
+      });
+
+      // Check for new achievements
+      const unlockedAchievements = await checkAndUnlockAchievements(leadCityPlayer.id);
+      if (unlockedAchievements.length > 0) {
+        setNewAchievements(unlockedAchievements);
       }
     } catch (error) {
       console.error('Error saving game result:', error);
@@ -240,6 +251,25 @@ const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:1000
                 <p className="text-gray-600">Confira seu desempenho</p>
               </div>
 
+              {/* New Achievements Notification */}
+              {newAchievements.length > 0 && (
+                <div className="rounded-2xl bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 p-6 space-y-3 animate-pulse">
+                  <div className="text-4xl">🎉</div>
+                  <h3 className="text-xl font-bold text-gray-900">Novas Conquistas Desbloqueadas!</h3>
+                  <div className="space-y-2">
+                    {newAchievements.map((achievement) => (
+                      <div key={achievement.id} className="flex items-center justify-center gap-2 text-gray-700">
+                        <span className="text-2xl">{achievement.achievement?.icon || '🏆'}</span>
+                        <span className="font-semibold">{achievement.achievement?.name}</span>
+                        <span className="px-2 py-0.5 bg-yellow-400 text-yellow-900 rounded-full text-xs font-bold">
+                          +{achievement.achievement?.points}pts
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="rounded-2xl bg-gradient-to-br from-purple-50 to-pink-50 p-6 space-y-4">
                 <div className="grid grid-cols-3 gap-4">
                   <div>
@@ -257,12 +287,18 @@ const socketUrl = process.env.NEXT_PUBLIC_SOCKETIO_URL || 'http://localhost:1000
                 </div>
               </div>
 
-              <div className="flex gap-4 justify-center">
+              <div className="flex gap-4 justify-center flex-wrap">
+                <Link
+                  href="/aplicativo/games/leadcity/stats"
+                  className="rounded-full bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-3 text-white font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                >
+                  📊 Ver Estatísticas
+                </Link>
                 <button
                   onClick={() => window.location.href = '/aplicativo/ia-gamificacao'}
                   className="rounded-full bg-white px-6 py-3 text-gray-700 font-semibold shadow-lg hover:shadow-xl transition-all hover:scale-105 ring-1 ring-gray-200"
                 >
-                  Ver Ranking Global
+                  🌍 Ranking Global
                 </button>
                 <button
                   onClick={playAgain}
