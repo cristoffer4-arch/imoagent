@@ -40,6 +40,40 @@ export interface CasafariSearchFilters {
   minBedrooms?: number;
   maxBedrooms?: number;
   minBathrooms?: number;
+    maxBathrooms?: number;
+  
+  // Floor information
+  minFloors?: number;
+  maxFloors?: number;
+  
+  // Additional area filters
+  minLandArea?: number;
+  maxLandArea?: number;
+  minGrossArea?: number;
+  maxGrossArea?: number;
+  
+  // Features and amenities
+  hasGarden?: boolean;
+  hasPool?: boolean;
+  hasBalcony?: boolean;
+  hasTerrace?: boolean;
+  hasGarage?: boolean;
+  hasElevator?: boolean;
+  hasAirConditioning?: boolean;
+  hasParking?: boolean;
+  
+  // Property condition and characteristics
+  energyRating?: string[]; // e.g., ['A', 'A+', 'B']
+  condition?: ('new' | 'used' | 'refurbished')[];
+  orientation?: string[]; // e.g., ['north', 'south', 'east', 'west']
+  views?: string[]; // e.g., ['sea', 'mountain', 'city']
+  furnished?: boolean;
+  
+  // Date filters
+  publishedAfter?: string; // ISO date string
+  publishedBefore?: string; // ISO date string
+  updatedAfter?: string; // ISO date string
+  updatedBefore?: string; // ISO date string
   
   // Pagination
   page?: number;
